@@ -119,7 +119,7 @@ export const null_: Bicoder<null> = {
   },
 };
 
-export function Array_<T>(element: Bicoder<T>): Bicoder<T[]> {
+export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
   return {
     encode(stream, value) {
       size.encode(stream, value.length);
@@ -141,7 +141,7 @@ export function Array_<T>(element: Bicoder<T>): Bicoder<T[]> {
   };
 }
 
-export function Object_<T extends Record<string, unknown>>(
+export function object<T extends Record<string, unknown>>(
   elements: {
     [K in keyof T]: Bicoder<T[K]>;
   },

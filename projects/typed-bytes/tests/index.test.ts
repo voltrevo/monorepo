@@ -67,7 +67,7 @@ Deno.test("bicode strings", () =>
   ]));
 
 Deno.test("bicode string arrays", () =>
-  testBicoder(tb.Array_(tb.string), [
+  testBicoder(tb.array(tb.string), [
     { value: [], bytes: [0] },
     { value: [""], bytes: [1, 0] },
     { value: ["", ""], bytes: [2, 0, 0] },
@@ -89,7 +89,7 @@ Deno.test("bicode string arrays", () =>
   ]));
 
 Deno.test("bicode array of objects", () => {
-  const bicoder = tb.Array_(tb.Object_({
+  const bicoder = tb.array(tb.object({
     x: tb.number,
     y: tb.number,
     message: tb.string,
