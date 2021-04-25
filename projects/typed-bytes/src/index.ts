@@ -148,6 +148,16 @@ export const null_: Bicoder<null> = {
   },
 };
 
+export const undefined_: Bicoder<undefined> = {
+  encode(_stream, _value) {},
+  decode(_stream) {
+    return undefined;
+  },
+  test(value): value is undefined {
+    return value === undefined;
+  },
+};
+
 export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
   return {
     encode(stream, value) {
@@ -200,6 +210,43 @@ export function object<T extends Record<string, unknown>>(
         Object.keys(elements).every(
           (k) => elements[k].test((value as Record<string, unknown>)[k]),
         )
+      );
+    },
+  };
+}
+
+export type StringMap<T> = { [key in string]?: T };
+
+export function stringMap<T>(
+  element: Bicoder<T>,
+): Bicoder<StringMap<T>> {
+  return {
+    encode(stream, value) {
+      const entries = Object.entries(value).filter(([, v]) => v !== undefined);
+      size.encode(stream, entries.length);
+
+      for (const [k, v] of entries) {
+        string.encode(stream, k);
+        element.encode(stream, v as Exclude<typeof v, undefined>);
+      }
+    },
+    decode(stream) {
+      const sz = size.decode(stream);
+      const result: StringMap<T> = {};
+
+      for (let i = 0; i < sz; i++) {
+        const key = string.decode(stream);
+        const value = element.decode(stream);
+        result[key] = value;
+      }
+
+      return result;
+    },
+    test(value): value is StringMap<T> {
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        Object.values(value).every((v) => v === undefined || element.test(v))
       );
     },
   };
@@ -286,4 +333,12 @@ export function union<T extends Bicoder<unknown>[]>(
       return false;
     },
   };
+}
+
+export function defer<T extends Bicoder<unknown>>(fn: () => T): T {
+  return {
+    encode: (stream, value) => fn().encode(stream, value),
+    decode: (stream) => fn().decode(stream),
+    test: (value): value is TypeOf<T> => fn().test(value),
+  } as T;
 }

@@ -151,3 +151,103 @@ Deno.test("bicode union", () => {
     { value: "hi", bytes: [2, 2, 104, 105] },
   ]);
 });
+
+Deno.test("bicode json", () => {
+  type JSON =
+    | null
+    | boolean
+    | number
+    | string
+    | JSON[]
+    | { [key in string]?: JSON };
+
+  const bicoder: tb.Bicoder<JSON> = tb.union(
+    tb.null_,
+    tb.boolean,
+    tb.number,
+    tb.string,
+    tb.array(tb.defer(() => bicoder)),
+    tb.stringMap(tb.defer(() => bicoder)),
+  );
+
+  testBicoder(bicoder, [
+    { value: null, bytes: [0] },
+    {
+      value: [1, 2, null, 3],
+      bytes: [
+        [4], // Option 4: array
+        [4], // 4 elements
+        [2], // Option 2: number
+        [63, 240, 0, 0, 0, 0, 0, 0], // 1
+        [2], // Option 2: number
+        [64, 0, 0, 0, 0, 0, 0, 0], // 2
+        [0], // Option 0: null
+        [2], // Option 2: number
+        [64, 8, 0, 0, 0, 0, 0, 0], // 3
+      ].flat(),
+    },
+    {
+      value: {
+        one: 1,
+        two: 2,
+        obj: {
+          foo: "bar",
+        },
+        nulls: [null, null, null],
+      },
+      bytes: [
+        [5], // Option 5: stringMap
+        [4], // 4 keys
+
+        [3, 111, 110, 101], // "one"
+        [2, 63, 240, 0, 0, 0, 0, 0, 0], // 1 (leading 2 was option 2: number)
+
+        [3, 116, 119, 111], // "two"
+        [2, 64, 0, 0, 0, 0, 0, 0, 0], // 2
+
+        [3, 111, 98, 106], // "obj"
+        [5], // Option 5: stringMap
+        [1], // 1 key
+        [3, 102, 111, 111], // "foo"
+        [3, 3, 98, 97, 114], // "bar"
+
+        [5, 110, 117, 108, 108, 115], // "nulls"
+        [4], // Option 4: array
+        [3], // 3 elements
+        [0], // null
+        [0], // null
+        [0], // null
+      ].flat(),
+    },
+  ]);
+});
+
+Deno.test("bicode json comparison (known structure)", () => {
+  const bicoder = tb.object({
+    one: tb.number,
+    two: tb.number,
+    obj: tb.object({
+      foo: tb.string,
+    }),
+    nulls: tb.array(tb.null_),
+  });
+
+  testBicoder(bicoder, [
+    {
+      value: {
+        one: 1,
+        two: 2,
+        obj: {
+          foo: "bar",
+        },
+        nulls: [null, null, null],
+      },
+      bytes: [
+        [63, 240, 0, 0, 0, 0, 0, 0], // 1
+        [64, 0, 0, 0, 0, 0, 0, 0], // 2
+        [3, 98, 97, 114], // "bar"
+        [3], // nulls is length 3
+      ].flat(),
+    },
+  ]);
+});
