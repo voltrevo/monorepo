@@ -342,3 +342,48 @@ export function defer<T extends Bicoder<unknown>>(fn: () => T): T {
     test: (value): value is TypeOf<T> => fn().test(value),
   } as T;
 }
+
+type Primitive =
+  | undefined
+  | null
+  | boolean
+  | number
+  | string;
+
+export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
+  return {
+    encode(_stream, _value) {},
+    decode(_stream) {
+      return exactValue;
+    },
+    test(value): value is T {
+      return value === exactValue;
+    },
+  };
+}
+
+export const never: Bicoder<never> = {
+  encode(_stream, value) {
+    throw new Error(`Unexpected value: ${value}`);
+  },
+  decode(_stream) {
+    throw new Error("Unexpected case");
+  },
+  test(_value): _value is never {
+    return false;
+  },
+};
+
+export function enum_<T extends (Primitive | typeof never)[]>(
+  ...args: T
+): Bicoder<UnionOf<T>> {
+  return union(
+    ...args.map((a) => {
+      if (typeof a === "object" && a !== null) {
+        return a; // never
+      }
+
+      return exact(a);
+    }),
+  );
+}

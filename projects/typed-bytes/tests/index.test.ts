@@ -251,3 +251,13 @@ Deno.test("bicode json comparison (known structure)", () => {
     },
   ]);
 });
+
+Deno.test("bicode enums", () => {
+  const bicoder = tb.enum_("foo", null, "bar", tb.never, "baz");
+
+  testBicoder(bicoder, [
+    { value: "foo", bytes: [0] },
+    { value: "bar", bytes: [2] },
+    { value: "baz", bytes: [4] },
+  ]);
+});
