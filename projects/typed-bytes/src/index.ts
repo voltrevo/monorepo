@@ -119,4 +119,49 @@ namespace bicoders {
       return null;
     },
   };
+
+  export function Array_<T>(element: Bicoder<T>): Bicoder<T[]> {
+    return {
+      encode(stream, value) {
+        size.encode(stream, value.length);
+
+        for (const el of value) {
+          element.encode(stream, el);
+        }
+      },
+      decode(stream) {
+        const sz = size.decode(stream);
+        const value: T[] = [];
+
+        for (let i = 0; i < sz; i++) {
+          value.push(element.decode(stream));
+        }
+
+        return value;
+      },
+    };
+  }
+
+  export function Object_<T extends Record<string, unknown>>(
+    elements: {
+      [K in keyof T]: Bicoder<T[K]>;
+    },
+  ): Bicoder<T> {
+    return {
+      encode(stream, value) {
+        for (const [k, v] of Object.entries(value)) {
+          elements[k].encode(stream, v as T[typeof k]);
+        }
+      },
+      decode(stream) {
+        const value: Record<string, unknown> = {};
+
+        for (const k of Object.keys(elements)) {
+          value[k] = elements[k].decode(stream);
+        }
+
+        return value as T;
+      },
+    };
+  }
 }
