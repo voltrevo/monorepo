@@ -11,7 +11,7 @@ type Decoder<T> = {
   decode(stream: Stream): T;
 };
 
-type Bicoder<T> = Encoder<T> & Decoder<T>;
+export type Bicoder<T> = Encoder<T> & Decoder<T>;
 
 // deno-lint-ignore no-namespace
 export namespace bicoders {
