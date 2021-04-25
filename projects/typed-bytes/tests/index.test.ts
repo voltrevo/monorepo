@@ -30,23 +30,20 @@ Deno.test("bicode number", () => {
   assertEquals(stream.offset, 8);
 });
 
-Deno.test("bicode size 0", () => {
-  const stream = Stream(8);
+Deno.test("bicode sizes", () => {
+  function testSize(size: number, bytes: number[]) {
+    const stream = Stream(8);
 
-  bicoders.size.encode(stream, 0);
-  stream.assert([0]);
+    bicoders.size.encode(stream, size);
+    stream.assert(bytes);
 
-  stream.offset = 0;
-  assertEquals(bicoders.size.decode(stream), 0);
-  assertEquals(stream.offset, 1);
-});
+    stream.offset = 0;
+    assertEquals(bicoders.size.decode(stream), size);
+  }
 
-Deno.test("bicode size 123456789", () => {
-  const stream = Stream(8);
-
-  bicoders.size.encode(stream, 123456789);
-  // stream.assert([]);
-
-  stream.offset = 0;
-  assertEquals(bicoders.size.decode(stream), 123456789);
+  testSize(0, [0]);
+  testSize(127, [127]);
+  testSize(128, [128, 1]);
+  testSize(129, [129, 1]);
+  testSize(123456789, [149, 154, 239, 58]);
 });

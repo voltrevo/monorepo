@@ -38,6 +38,7 @@ export namespace bicoders {
     },
     decode(stream) {
       let value = 0;
+      let placeValue = 1;
 
       while (true) {
         const byte = stream.data.getUint8(stream.offset);
@@ -46,11 +47,11 @@ export namespace bicoders {
         const more = byte >= 128;
 
         if (!more) {
-          return value + byte;
+          return value + byte * placeValue;
         }
 
-        value += byte - 128;
-        value *= 128;
+        value += (byte - 128) * placeValue;
+        placeValue *= 128;
       }
     },
   };
