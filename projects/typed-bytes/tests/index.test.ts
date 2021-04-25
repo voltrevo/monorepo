@@ -130,3 +130,16 @@ Deno.test("bicode array of objects", () => {
     },
   ]);
 });
+
+Deno.test("bicode tuple", () => {
+  testBicoder(tb.tuple(tb.number, tb.null_, tb.string), [
+    {
+      value: [1, null, "hi"],
+      bytes: [
+        [63, 240, 0, 0, 0, 0, 0, 0], // 1
+        [], // null takes up no space
+        [2, 104, 105], // "hi"
+      ].flat(),
+    },
+  ]);
+});

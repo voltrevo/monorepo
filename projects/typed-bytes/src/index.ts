@@ -163,3 +163,32 @@ export function object<T extends Record<string, unknown>>(
     },
   };
 }
+
+type BicoderTargetsImpl<T> = (
+  T extends [Bicoder<infer First>, ...infer Rest]
+    ? [First, ...BicoderTargetsImpl<Rest>]
+    : []
+);
+
+type BicoderTargets<T extends Bicoder<unknown>[]> = BicoderTargetsImpl<T>;
+
+export function tuple<T extends Bicoder<unknown>[]>(
+  ...elements: T
+): Bicoder<BicoderTargets<T>> {
+  return {
+    encode(stream, value) {
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].encode(stream, value[i]);
+      }
+    },
+    decode(stream) {
+      const results: unknown[] = [];
+
+      for (const element of elements) {
+        results.push(element.decode(stream));
+      }
+
+      return results as BicoderTargets<T>;
+    },
+  };
+}
