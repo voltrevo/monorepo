@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
-import { Bicoder, bicoders } from "../mod.ts";
+import * as tb from "../mod.ts";
 
 function Stream(size: number) {
   const buffer = new ArrayBuffer(size);
@@ -20,7 +20,7 @@ function Stream(size: number) {
 }
 
 function testBicoder<T>(
-  bicoder: Bicoder<T>,
+  bicoder: tb.Bicoder<T>,
   testCases: { value: T; bytes: number[] }[],
 ) {
   for (const { value, bytes } of testCases) {
@@ -39,7 +39,7 @@ function testBicoder<T>(
 }
 
 Deno.test("bicode numbers", () =>
-  testBicoder(bicoders.number, [
+  testBicoder(tb.number, [
     { value: 0, bytes: [0, 0, 0, 0, 0, 0, 0, 0] },
     { value: 1, bytes: [63, 240, 0, 0, 0, 0, 0, 0] },
     { value: -1, bytes: [191, 240, 0, 0, 0, 0, 0, 0] },
@@ -48,7 +48,7 @@ Deno.test("bicode numbers", () =>
   ]));
 
 Deno.test("bicode sizes", () =>
-  testBicoder(bicoders.size, [
+  testBicoder(tb.size, [
     { value: 0, bytes: [0] },
     { value: 127, bytes: [127] },
     { value: 128, bytes: [128, 1] },
@@ -57,7 +57,7 @@ Deno.test("bicode sizes", () =>
   ]));
 
 Deno.test("bicode strings", () =>
-  testBicoder(bicoders.string, [
+  testBicoder(tb.string, [
     { value: "", bytes: [0] },
     {
       value: "Hello world!",
@@ -67,7 +67,7 @@ Deno.test("bicode strings", () =>
   ]));
 
 Deno.test("bicode string arrays", () =>
-  testBicoder(bicoders.Array_(bicoders.string), [
+  testBicoder(tb.Array_(tb.string), [
     { value: [], bytes: [0] },
     { value: [""], bytes: [1, 0] },
     { value: ["", ""], bytes: [2, 0, 0] },
@@ -89,10 +89,10 @@ Deno.test("bicode string arrays", () =>
   ]));
 
 Deno.test("bicode array of objects", () => {
-  const bicoder = bicoders.Array_(bicoders.Object_({
-    x: bicoders.number,
-    y: bicoders.number,
-    message: bicoders.string,
+  const bicoder = tb.Array_(tb.Object_({
+    x: tb.number,
+    y: tb.number,
+    message: tb.string,
   }));
 
   testBicoder(bicoder, [
