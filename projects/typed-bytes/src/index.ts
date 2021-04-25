@@ -15,7 +15,7 @@ type Bicoder<T> = Encoder<T> & Decoder<T>;
 
 // deno-lint-ignore no-namespace
 export namespace bicoders {
-  const size: Bicoder<number> = {
+  export const size: Bicoder<number> = {
     encode(stream, value) {
       // TODO: Check value is encodable as a size (float strangeness)
 
