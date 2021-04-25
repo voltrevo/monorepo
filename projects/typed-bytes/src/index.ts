@@ -11,7 +11,11 @@ type Decoder<T> = {
   decode(stream: Stream): T;
 };
 
-export type Bicoder<T> = Encoder<T> & Decoder<T>;
+type Tester<T> = {
+  test(value: unknown): value is T;
+};
+
+export type Bicoder<T> = Encoder<T> & Decoder<T> & Tester<T>;
 
 export const size: Bicoder<number> = {
   encode(stream, value) {
@@ -52,6 +56,16 @@ export const size: Bicoder<number> = {
       placeValue *= 128;
     }
   },
+
+  // TODO: Possible issues since we reject some numbers
+  test(value): value is number {
+    return (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      value >= 0 &&
+      Math.round(value) === value
+    );
+  },
 };
 
 export const buffer: Bicoder<ArrayBuffer> = {
@@ -77,6 +91,9 @@ export const buffer: Bicoder<ArrayBuffer> = {
 
     return buf;
   },
+  test(value): value is ArrayBuffer {
+    return value instanceof ArrayBuffer;
+  },
 };
 
 export const number: Bicoder<number> = {
@@ -89,6 +106,9 @@ export const number: Bicoder<number> = {
     stream.offset += 8;
     return value;
   },
+  test(value): value is number {
+    return typeof value === "number";
+  },
 };
 
 export const string: Bicoder<string> = {
@@ -97,6 +117,9 @@ export const string: Bicoder<string> = {
   },
   decode(stream) {
     return new TextDecoder().decode(buffer.decode(stream));
+  },
+  test(value): value is string {
+    return typeof value === "string";
   },
 };
 
@@ -110,12 +133,18 @@ export const boolean: Bicoder<boolean> = {
     stream.offset++;
     return byte !== 1; // TODO: Be strict
   },
+  test(value): value is boolean {
+    return typeof value === "boolean";
+  },
 };
 
 export const null_: Bicoder<null> = {
   encode(_stream, _value) {},
   decode(_stream) {
     return null;
+  },
+  test(value): value is null {
+    return value === null;
   },
 };
 
@@ -137,6 +166,9 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
       }
 
       return value;
+    },
+    test(value): value is T[] {
+      return Array.isArray(value) && value.every((v) => element.test(v));
     },
   };
 }
@@ -160,6 +192,15 @@ export function object<T extends Record<string, unknown>>(
       }
 
       return value as T;
+    },
+    test(value): value is T {
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        Object.keys(elements).every(
+          (k) => elements[k].test((value as Record<string, unknown>)[k]),
+        )
+      );
     },
   };
 }
@@ -189,6 +230,60 @@ export function tuple<T extends Bicoder<unknown>[]>(
       }
 
       return results as BicoderTargets<T>;
+    },
+    test(value): value is BicoderTargets<T> {
+      return (
+        Array.isArray(value) &&
+        value.length === elements.length &&
+        elements.every((element, i) => element.test(value[i]))
+      );
+    },
+  };
+}
+
+export type TypeOf<B extends Bicoder<unknown>> = B extends Bicoder<infer T> ? T
+  : never;
+
+type UnionOf<T extends unknown[]> = T extends [infer First, ...infer Rest]
+  ? First | UnionOf<Rest>
+  : never;
+
+export function union<T extends Bicoder<unknown>[]>(
+  ...options: T
+): Bicoder<UnionOf<BicoderTargets<T>>> {
+  return {
+    encode(stream, value) {
+      for (let i = 0; i < options.length; i++) {
+        const option = options[i];
+
+        // TODO: For large structures, this might be inefficient because
+        // substructures may get retested many times.
+        // Possible solutions:
+        // - Memoization
+        // - Get clever about testing distinctions rather than full values
+        // - Use generators for incremental testing, and stop incremental
+        //   testing when all but one option has been eliminated
+        if (option.test(value)) {
+          size.encode(stream, i);
+          option.encode(stream, value);
+          return;
+        }
+      }
+
+      throw new Error(`Could not encode ${value}`);
+    },
+    decode(stream) {
+      const optionIndex = size.decode(stream);
+      return options[optionIndex].decode(stream) as UnionOf<BicoderTargets<T>>;
+    },
+    test(value): value is UnionOf<BicoderTargets<T>> {
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].test(value)) {
+          return true;
+        }
+      }
+
+      return false;
     },
   };
 }

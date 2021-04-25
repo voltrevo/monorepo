@@ -143,3 +143,11 @@ Deno.test("bicode tuple", () => {
     },
   ]);
 });
+
+Deno.test("bicode union", () => {
+  testBicoder(tb.union(tb.null_, tb.number, tb.string), [
+    { value: null, bytes: [0] },
+    { value: 123, bytes: [1, 64, 94, 192, 0, 0, 0, 0, 0] },
+    { value: "hi", bytes: [2, 2, 104, 105] },
+  ]);
+});
