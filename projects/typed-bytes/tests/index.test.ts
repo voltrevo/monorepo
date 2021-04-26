@@ -301,3 +301,41 @@ Deno.test("bicode isizes", () => {
     { value: -123456789, bytes: [171, 180, 222, 117] },
   ]);
 });
+
+Deno.test("shapes", () => {
+  const Position = tb.object({
+    x: tb.isize,
+    y: tb.isize,
+  });
+
+  const Circle = tb.object({
+    position: Position,
+    radius: tb.size,
+  });
+
+  const Triangle = tb.object({
+    position: Position,
+    radius: tb.size,
+    rotation: tb.isize,
+  });
+
+  const Square = tb.object({
+    position: Position,
+    radius: tb.size,
+    rotation: tb.isize,
+  });
+
+  const Shape = tb.union(Circle, Triangle, Square);
+  type Shape = tb.TypeOf<typeof Shape>;
+
+  const buffer = tb.encodeBuffer(Shape, {
+    position: { x: 0, y: 0 },
+    radius: 100,
+    rotation: 30,
+  });
+
+  assertEquals(
+    [...new Uint8Array(buffer)],
+    [],
+  );
+});
