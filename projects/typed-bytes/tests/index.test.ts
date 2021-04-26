@@ -7,13 +7,13 @@ function testBicoder<T extends tb.AnyBicoder>(
   testCases: { value: tb.TypeOf<T>; bytes: number[] }[],
 ) {
   for (const { value, bytes } of testCases) {
-    const stream = new tb.BufferStream();
+    const bb = tb.BufferBicoder(bicoder);
 
-    stream.write(bicoder, value);
-    assertEquals([...new Uint8Array(stream.get())], bytes);
+    const buffer = bb.encode(value);
+    assertEquals([...new Uint8Array(buffer)], bytes);
 
-    stream.setOffset(0);
-    assertEquals(stream.read(bicoder), value);
+    const valueDecoded = bb.decode(buffer);
+    assertEquals(valueDecoded, value);
   }
 }
 
