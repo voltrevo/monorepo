@@ -27,6 +27,8 @@ const buffer = encode({
    84, 101, 115, 116, // utf-8 bytes for "Test message"
    32, 109, 101, 115,
   115,  97, 103, 101
+
+  // (Notice how no bytes were used for strings 'level', 'message', or 'LOG')
 */
 console.log(new Uint8Array(buffer));
 
