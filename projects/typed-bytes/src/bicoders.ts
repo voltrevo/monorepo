@@ -7,7 +7,7 @@ import type {
   UnionOf,
 } from "./types.ts";
 
-const _typeGuard = <T>(value: T) => value;
+export const echo = <T>(value: T) => value;
 
 export const size: Bicoder<number> = {
   encode(stream, value) {
@@ -57,7 +57,7 @@ export const size: Bicoder<number> = {
     );
   },
 
-  _typeGuard,
+  echo,
 };
 
 export const buffer: Bicoder<ArrayBuffer> = {
@@ -72,7 +72,7 @@ export const buffer: Bicoder<ArrayBuffer> = {
   test(value): value is ArrayBuffer {
     return value instanceof ArrayBuffer;
   },
-  _typeGuard,
+  echo,
 };
 
 export const number: Bicoder<number> = {
@@ -87,7 +87,7 @@ export const number: Bicoder<number> = {
   test(value): value is number {
     return typeof value === "number";
   },
-  _typeGuard,
+  echo,
 };
 
 export const string: Bicoder<string> = {
@@ -100,7 +100,7 @@ export const string: Bicoder<string> = {
   test(value): value is string {
     return typeof value === "string";
   },
-  _typeGuard,
+  echo,
 };
 
 export const boolean: Bicoder<boolean> = {
@@ -113,7 +113,7 @@ export const boolean: Bicoder<boolean> = {
   test(value): value is boolean {
     return typeof value === "boolean";
   },
-  _typeGuard,
+  echo,
 };
 
 export const null_: Bicoder<null> = {
@@ -124,7 +124,7 @@ export const null_: Bicoder<null> = {
   test(value): value is null {
     return value === null;
   },
-  _typeGuard,
+  echo,
 };
 
 export const undefined_: Bicoder<undefined> = {
@@ -135,7 +135,7 @@ export const undefined_: Bicoder<undefined> = {
   test(value): value is undefined {
     return value === undefined;
   },
-  _typeGuard,
+  echo,
 };
 
 export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
@@ -160,7 +160,7 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
     test(value): value is T[] {
       return Array.isArray(value) && value.every((v) => element.test(v));
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -193,7 +193,7 @@ export function object<T extends Record<string, unknown>>(
         )
       );
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -229,7 +229,7 @@ export function stringMap<T>(
         Object.values(value).every((v) => v === undefined || element.test(v))
       );
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -258,7 +258,7 @@ export function tuple<T extends AnyBicoder[]>(
         elements.every((element, i) => element.test(value[i]))
       );
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -299,7 +299,7 @@ export function union<T extends AnyBicoder[]>(
 
       return false;
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -308,7 +308,7 @@ export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
     encode: (stream, value) => fn().encode(stream, value),
     decode: (stream) => fn().decode(stream),
     test: (value): value is T => fn().test(value),
-    _typeGuard,
+    echo,
   };
 }
 
@@ -321,7 +321,7 @@ export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
     test(value): value is T {
       return value === exactValue;
     },
-    _typeGuard,
+    echo,
   };
 }
 
@@ -378,5 +378,5 @@ export const bigint: Bicoder<bigint> = {
   test(value): value is bigint {
     return typeof value === "bigint";
   },
-  _typeGuard,
+  echo,
 };

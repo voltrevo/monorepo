@@ -16,7 +16,7 @@ export type Bicoder<T> = (
   & Encoder<T>
   & Decoder<T>
   & Tester<T>
-  & { _typeGuard: (value: T) => T }
+  & { echo: (value: T) => T }
 );
 
 // deno-lint-ignore no-explicit-any
