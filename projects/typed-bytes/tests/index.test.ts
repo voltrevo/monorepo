@@ -19,9 +19,9 @@ function Stream(size: number) {
   return stream;
 }
 
-function testBicoder<T>(
-  bicoder: tb.Bicoder<T>,
-  testCases: { value: T; bytes: number[] }[],
+function testBicoder<T extends tb.AnyBicoder>(
+  bicoder: T,
+  testCases: { value: tb.TypeOf<T>; bytes: number[] }[],
 ) {
   for (const { value, bytes } of testCases) {
     const stream = Stream(1024);
@@ -158,13 +158,15 @@ Deno.test("bicode json", () => {
     | JSON[]
     | { [key in string]?: JSON };
 
-  const bicoder: tb.Bicoder<JSON> = tb.union(
+  const deferBicoder = tb.defer((): tb.Bicoder<JSON> => bicoder);
+
+  const bicoder = tb.union(
     tb.null_,
     tb.boolean,
     tb.number,
     tb.string,
-    tb.array(tb.defer(() => bicoder)),
-    tb.stringMap(tb.defer(() => bicoder)),
+    tb.array(deferBicoder),
+    tb.stringMap(deferBicoder),
   );
 
   testBicoder(bicoder, [
@@ -250,12 +252,11 @@ Deno.test("bicode json comparison (known structure)", () => {
 });
 
 Deno.test("bicode enums", () => {
-  const bicoder = tb.enum_("foo", null, "bar", tb.never, "baz");
+  const bicoder = tb.enum_("foo", null, "bar");
 
   testBicoder(bicoder, [
     { value: "foo", bytes: [0] },
     { value: "bar", bytes: [2] },
-    { value: "baz", bytes: [4] },
   ]);
 });
 

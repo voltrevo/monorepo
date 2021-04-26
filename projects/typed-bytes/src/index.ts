@@ -15,7 +15,19 @@ type Tester<T> = {
   test(value: unknown): value is T;
 };
 
-export type Bicoder<T> = Encoder<T> & Decoder<T> & Tester<T>;
+export type Bicoder<T> = (
+  & Encoder<T>
+  & Decoder<T>
+  & Tester<T>
+  & { _typeGuard: (value: T) => T }
+);
+
+// deno-lint-ignore no-explicit-any
+type ExplicitAny = any;
+
+export type AnyBicoder = Bicoder<ExplicitAny>;
+
+const _typeGuard = <T>(value: T) => value;
 
 export const size: Bicoder<number> = {
   encode(stream, value) {
@@ -66,6 +78,8 @@ export const size: Bicoder<number> = {
       Math.round(value) === value
     );
   },
+
+  _typeGuard,
 };
 
 export const buffer: Bicoder<ArrayBuffer> = {
@@ -94,6 +108,7 @@ export const buffer: Bicoder<ArrayBuffer> = {
   test(value): value is ArrayBuffer {
     return value instanceof ArrayBuffer;
   },
+  _typeGuard,
 };
 
 export const number: Bicoder<number> = {
@@ -109,6 +124,7 @@ export const number: Bicoder<number> = {
   test(value): value is number {
     return typeof value === "number";
   },
+  _typeGuard,
 };
 
 export const string: Bicoder<string> = {
@@ -121,6 +137,7 @@ export const string: Bicoder<string> = {
   test(value): value is string {
     return typeof value === "string";
   },
+  _typeGuard,
 };
 
 export const boolean: Bicoder<boolean> = {
@@ -136,6 +153,7 @@ export const boolean: Bicoder<boolean> = {
   test(value): value is boolean {
     return typeof value === "boolean";
   },
+  _typeGuard,
 };
 
 export const null_: Bicoder<null> = {
@@ -146,6 +164,7 @@ export const null_: Bicoder<null> = {
   test(value): value is null {
     return value === null;
   },
+  _typeGuard,
 };
 
 export const undefined_: Bicoder<undefined> = {
@@ -156,6 +175,7 @@ export const undefined_: Bicoder<undefined> = {
   test(value): value is undefined {
     return value === undefined;
   },
+  _typeGuard,
 };
 
 export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
@@ -180,6 +200,7 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
     test(value): value is T[] {
       return Array.isArray(value) && value.every((v) => element.test(v));
     },
+    _typeGuard,
   };
 }
 
@@ -212,6 +233,7 @@ export function object<T extends Record<string, unknown>>(
         )
       );
     },
+    _typeGuard,
   };
 }
 
@@ -249,6 +271,7 @@ export function stringMap<T>(
         Object.values(value).every((v) => v === undefined || element.test(v))
       );
     },
+    _typeGuard,
   };
 }
 
@@ -258,9 +281,9 @@ type BicoderTargetsImpl<T> = (
     : []
 );
 
-type BicoderTargets<T extends Bicoder<unknown>[]> = BicoderTargetsImpl<T>;
+type BicoderTargets<T extends AnyBicoder[]> = BicoderTargetsImpl<T>;
 
-export function tuple<T extends Bicoder<unknown>[]>(
+export function tuple<T extends AnyBicoder[]>(
   ...elements: T
 ): Bicoder<BicoderTargets<T>> {
   return {
@@ -285,17 +308,18 @@ export function tuple<T extends Bicoder<unknown>[]>(
         elements.every((element, i) => element.test(value[i]))
       );
     },
+    _typeGuard,
   };
 }
 
-export type TypeOf<B extends Bicoder<unknown>> = B extends Bicoder<infer T> ? T
+export type TypeOf<B extends AnyBicoder> = B extends Bicoder<infer T> ? T
   : never;
 
 type UnionOf<T extends unknown[]> = T extends [infer First, ...infer Rest]
   ? First | UnionOf<Rest>
   : never;
 
-export function union<T extends Bicoder<unknown>[]>(
+export function union<T extends AnyBicoder[]>(
   ...options: T
 ): Bicoder<UnionOf<BicoderTargets<T>>> {
   return {
@@ -332,15 +356,17 @@ export function union<T extends Bicoder<unknown>[]>(
 
       return false;
     },
+    _typeGuard,
   };
 }
 
-export function defer<T extends Bicoder<unknown>>(fn: () => T): T {
+export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
   return {
     encode: (stream, value) => fn().encode(stream, value),
     decode: (stream) => fn().decode(stream),
-    test: (value): value is TypeOf<T> => fn().test(value),
-  } as T;
+    test: (value): value is T => fn().test(value),
+    _typeGuard,
+  };
 }
 
 type Primitive =
@@ -359,33 +385,14 @@ export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
     test(value): value is T {
       return value === exactValue;
     },
+    _typeGuard,
   };
 }
 
-export const never: Bicoder<never> = {
-  encode(_stream, value) {
-    throw new Error(`Unexpected value: ${value}`);
-  },
-  decode(_stream) {
-    throw new Error("Unexpected case");
-  },
-  test(_value): _value is never {
-    return false;
-  },
-};
-
-export function enum_<T extends (Primitive | typeof never)[]>(
+export function enum_<T extends Primitive[]>(
   ...args: T
 ): Bicoder<UnionOf<T>> {
-  return union(
-    ...args.map((a) => {
-      if (typeof a === "object" && a !== null) {
-        return a; // never
-      }
-
-      return exact(a);
-    }),
-  );
+  return union(...args.map(exact)) as unknown as Bicoder<UnionOf<T>>;
 }
 
 export const bigint: Bicoder<bigint> = {
@@ -443,4 +450,5 @@ export const bigint: Bicoder<bigint> = {
   test(value): value is bigint {
     return typeof value === "bigint";
   },
+  _typeGuard,
 };
