@@ -6,17 +6,20 @@ const Position = tb.object({
 });
 
 const Circle = tb.object({
+  type: tb.exact("circle"),
   position: Position,
   radius: tb.size,
 });
 
 const Triangle = tb.object({
+  type: tb.exact("triangle"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
 });
 
 const Square = tb.object({
+  type: tb.exact("square"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
@@ -31,6 +34,7 @@ function show(shape: Shape) {
 
 // Circle
 show({
+  type: "circle",
   position: { x: 0, y: 0 },
   radius: 100,
 }); /*
@@ -41,6 +45,7 @@ show({
 
 // Triangle
 show({
+  type: "triangle",
   position: { x: 0, y: 0 },
   sideLength: 100,
   rotation: 30,
@@ -53,11 +58,12 @@ show({
 
 // Square
 show({
+  type: "square",
   position: { x: 0, y: 0 },
   sideLength: 100,
   rotation: 45,
 }); /*
-  1,    // Option 1:   Triangle (Oops)
+  2,    // Option 2:     Square
   0, 0, // Position:     (0, 0)
   100,  // sideLength:      100
   90,   // rotation:         45
@@ -72,6 +78,7 @@ console.log(tb.decodeBuffer(
     [90], //   rotation:         45
   ].flat()).buffer,
 )); /* {
+  type: "square",
   position: { x: 0, y: 0 },
   sideLength: 100,
   rotation: 45,
