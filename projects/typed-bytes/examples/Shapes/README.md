@@ -1,8 +1,8 @@
 # Shapes Example
 
-Suppose we were making graphics application where the user can draw shapes on a
-canvas. We want to be able to be able to encode the canvas and its shapes so we
-can save it to disk, synchronize it with a remote display, or what-have-you.
+Suppose we were making a graphics application where the user can draw shapes on
+a canvas. We want to be able to be able to encode the canvas and its shapes so
+we can save it to disk, synchronize it with a remote display, or what-have-you.
 
 ## Step 1: Size
 
@@ -184,3 +184,5 @@ Notice that the y-coordinate of 20 for the second circle is actually encoded
 as 40. This is because we're using `isize`, and allowing for negative numbers
 means our positive numbers need to be larger. All the odd numbers are used to
 encode negatives.
+
+## Step 5: More Shapes
