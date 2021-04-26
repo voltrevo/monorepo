@@ -15,12 +15,17 @@ export function decodeBuffer<T>(decoder: Decoder<T>, buffer: ArrayBuffer): T {
   return stream.read(decoder);
 }
 
-export function BufferBicoder<T>(bicoder: Bicoder<T>) {
+export type BufferBicoder<T> = {
+  encode(value: T): ArrayBuffer;
+  decode(buffer: ArrayBuffer): T;
+};
+
+export function BufferBicoder<T>(bicoder: Bicoder<T>): BufferBicoder<T> {
   return {
-    encode(value: T): ArrayBuffer {
+    encode(value) {
       return encodeBuffer(bicoder, value);
     },
-    decode(buffer: ArrayBuffer): T {
+    decode(buffer) {
       return decodeBuffer(bicoder, buffer);
     },
   };
