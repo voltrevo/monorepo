@@ -82,6 +82,14 @@ console.log(new Uint8Array(buffer));
 const decodedValue = decode(buffer);
 ```
 
+## A More Complex Example
+
+Suppose we were making graphics application where the user can draw shapes on a
+canvas. We want to be able to be able to encode the canvas and its shapes so we
+can save it to disk, synchronize it with a remote display, or what-have-you.
+
+... [keep reading](./examples/Shapes/README.md) ...
+
 ## Why Use `typed-bytes` Instead Of...
 
 ### MessagePack
