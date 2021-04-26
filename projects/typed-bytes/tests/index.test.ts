@@ -336,6 +336,6 @@ Deno.test("shapes", () => {
 
   assertEquals(
     [...new Uint8Array(buffer)],
-    [],
+    [1, 0, 0, 100, 60],
   );
 });

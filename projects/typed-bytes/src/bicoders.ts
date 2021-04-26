@@ -213,10 +213,13 @@ export function object<T extends Record<string, unknown>>(
       return value as T;
     },
     test(value): value is T {
+      const keys = Object.keys(elements);
+
       return (
         typeof value === "object" &&
         value !== null &&
-        Object.keys(elements).every(
+        keys.length === Object.keys(value).length &&
+        keys.every(
           (k) => elements[k].test((value as Record<string, unknown>)[k]),
         )
       );
