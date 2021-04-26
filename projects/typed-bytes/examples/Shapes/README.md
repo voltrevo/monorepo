@@ -103,6 +103,7 @@ Binary           11010000   00000101
                  |   |      Leading 0 means this is the last byte
                  |   1010000(binary) = 80(decimal)
                  Leading 1 means we're not finished
+```
 
 So the bytes above are broken into the following 7-bit numbers: [80, 5]. In 7
 bits we can represent 128 different values, so we're just using base 128. We can
