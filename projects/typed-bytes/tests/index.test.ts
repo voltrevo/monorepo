@@ -10,8 +10,8 @@ function Stream(size: number) {
     offset: 0,
     assert: (bytes: number[]) => {
       assertEquals(
-        JSON.stringify([...new Uint8Array(buffer).subarray(0, stream.offset)]),
-        JSON.stringify(bytes),
+        [...new Uint8Array(buffer).subarray(0, stream.offset)],
+        bytes,
       );
     },
   };
@@ -31,10 +31,7 @@ function testBicoder<T>(
 
     stream.offset = 0;
 
-    assertEquals(
-      JSON.stringify(bicoder.decode(stream)),
-      JSON.stringify(value),
-    );
+    assertEquals(bicoder.decode(stream), value);
   }
 }
 
@@ -261,3 +258,12 @@ Deno.test("bicode enums", () => {
     { value: "baz", bytes: [4] },
   ]);
 });
+
+Deno.test("bicode bigints", () =>
+  testBicoder(tb.bigint, [
+    { value: 0n, bytes: [0] },
+    { value: 1n, bytes: [2, 1] },
+    { value: -1n, bytes: [3, 1] },
+    { value: 2n, bytes: [2, 2] },
+    { value: 123456n, bytes: [6, 1, 226, 64] },
+  ]));

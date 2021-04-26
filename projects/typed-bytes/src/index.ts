@@ -387,3 +387,60 @@ export function enum_<T extends (Primitive | typeof never)[]>(
     }),
   );
 }
+
+export const bigint: Bicoder<bigint> = {
+  encode(stream, value) {
+    if (value === 0n) {
+      stream.data.setUint8(stream.offset, 0);
+      stream.offset++;
+      return;
+    }
+
+    const positive = value >= 0n;
+    const absValue = positive ? value : -value;
+
+    const hex = absValue.toString(16);
+    const sz = Math.floor((hex.length + 1) / 2);
+    size.encode(stream, (positive ? 0 : 1) + 2 * sz);
+
+    let pos = 0;
+
+    if (hex.length % 2 === 1) {
+      stream.data.setUint8(stream.offset, parseInt(hex[0], 16));
+      stream.offset++;
+      pos++;
+    }
+
+    for (; pos < hex.length; pos += 2) {
+      stream.data.setUint8(
+        stream.offset,
+        parseInt(hex.slice(pos, pos + 2), 16),
+      );
+
+      stream.offset++;
+    }
+  },
+  decode(stream) {
+    let sz = size.decode(stream);
+
+    if (sz === 0) {
+      return 0n;
+    }
+
+    const positive = sz % 2 === 0;
+    sz = (positive ? sz : sz - 1) / 2;
+    let str = "0x";
+
+    for (let i = 0; i < sz; i++) {
+      str += stream.data.getUint8(stream.offset).toString(16).padStart(2, "0");
+      stream.offset++;
+    }
+
+    const absValue = BigInt(str);
+
+    return positive ? absValue : -absValue;
+  },
+  test(value): value is bigint {
+    return typeof value === "bigint";
+  },
+};
