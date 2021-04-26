@@ -22,6 +22,8 @@ console.log(new Uint8Array(buffer)); /*
 */
 ```
 
+## Step 2: Use `size` for Size
+
 Hmm there's a lot of zeros in there. Turns out numbers in JavaScript take up 8
 bytes because they are based on 64-bit floating point. We're going to be pixel
 based, so we're happy with whole numbers. We can replace `tb.number` with
@@ -40,7 +42,7 @@ based, so we're happy with whole numbers. We can replace `tb.number` with
 
 Just four bytes! Now we're talking.
 
-## Step 2: Add a Circle
+## Step 3: Add a Circle
 
 Let's add a shape. We'll start with circles. You like circles, right? I like
 circles. Well a circle has a center and a radius, so we can define it like
@@ -132,7 +134,7 @@ there - we don't need to know how long the sequence is going to be to start
 knowing what the digits mean. I find this more elegant but there are arguments
 on both sides 🤷‍♂️🤓.
 
-## Step 3: Not Just One Circle
+## Step 4: Not Just One Circle
 
 That's *one* circle. We are not satisfied with that number of circles. We need
 an array.
