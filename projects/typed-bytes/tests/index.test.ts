@@ -289,3 +289,15 @@ Deno.test("bicode custom class", () => {
   assertEquals(point, new Point(1, 2));
   assert(point instanceof Point);
 });
+
+Deno.test("bicode isizes", () => {
+  testBicoder(tb.isize, [
+    { value: 0, bytes: [0] },
+    { value: 1, bytes: [2] },
+    { value: -1, bytes: [3] },
+    { value: 2, bytes: [4] },
+    { value: -2, bytes: [5] },
+    { value: 123456789, bytes: [170, 180, 222, 117] },
+    { value: -123456789, bytes: [171, 180, 222, 117] },
+  ]);
+});

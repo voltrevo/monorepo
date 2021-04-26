@@ -60,6 +60,34 @@ export const size: Bicoder<number> = {
   echo,
 };
 
+export const isize: Bicoder<number> = {
+  encode(stream, value) {
+    const sz = 2 * Math.abs(value) + (value < 0 ? 1 : 0);
+    stream.write(size, sz);
+  },
+
+  decode(stream) {
+    const sz = stream.read(size);
+    const positive = sz % 2 === 0;
+    const absSize = (sz - (positive ? 0 : 1)) / 2;
+    const sign = positive ? 1 : -1;
+
+    return sign * absSize;
+  },
+
+  // TODO: Possible issues since we reject some numbers
+  test(value): value is number {
+    return (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      value >= 0 &&
+      Math.round(value) === value
+    );
+  },
+
+  echo,
+};
+
 export const buffer: Bicoder<ArrayBuffer> = {
   encode(stream, value) {
     size.encode(stream, value.byteLength);
@@ -380,3 +408,7 @@ export const bigint: Bicoder<bigint> = {
   },
   echo,
 };
+
+export function optional<T>(element: Bicoder<T>): Bicoder<T | null> {
+  return union(null_, element);
+}
