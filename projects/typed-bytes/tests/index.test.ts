@@ -2,36 +2,18 @@ import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 import * as tb from "../mod.ts";
 
-function Stream(size: number) {
-  const buffer = new ArrayBuffer(size);
-
-  const stream = {
-    data: new DataView(buffer),
-    offset: 0,
-    assert: (bytes: number[]) => {
-      assertEquals(
-        [...new Uint8Array(buffer).subarray(0, stream.offset)],
-        bytes,
-      );
-    },
-  };
-
-  return stream;
-}
-
 function testBicoder<T extends tb.AnyBicoder>(
   bicoder: T,
   testCases: { value: tb.TypeOf<T>; bytes: number[] }[],
 ) {
   for (const { value, bytes } of testCases) {
-    const stream = Stream(1024);
+    const stream = new tb.BufferStream();
 
-    bicoder.encode(stream, value);
-    stream.assert(bytes);
+    stream.write(bicoder, value);
+    assertEquals([...new Uint8Array(stream.get())], bytes);
 
-    stream.offset = 0;
-
-    assertEquals(bicoder.decode(stream), value);
+    stream.setOffset(0);
+    assertEquals(stream.read(bicoder), value);
   }
 }
 

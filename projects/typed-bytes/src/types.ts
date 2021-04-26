@@ -1,17 +1,14 @@
-type Stream = {
-  data: DataView;
-  offset: number;
-};
+import type Stream from "./Stream.ts";
 
-type Encoder<T> = {
+export type Encoder<T> = {
   encode(stream: Stream, value: T): void;
 };
 
-type Decoder<T> = {
+export type Decoder<T> = {
   decode(stream: Stream): T;
 };
 
-type Tester<T> = {
+export type Tester<T> = {
   test(value: unknown): value is T;
 };
 

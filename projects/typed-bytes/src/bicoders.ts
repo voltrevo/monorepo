@@ -22,8 +22,7 @@ export const size: Bicoder<number> = {
         byte += 128;
       }
 
-      stream.data.setUint8(stream.offset, byte);
-      stream.offset++;
+      stream.writeByte(byte);
 
       if (value === 0) {
         break;
@@ -35,8 +34,7 @@ export const size: Bicoder<number> = {
     let placeValue = 1;
 
     while (true) {
-      const byte = stream.data.getUint8(stream.offset);
-      stream.offset++;
+      const byte = stream.readByte();
 
       const more = byte >= 128;
 
@@ -65,25 +63,11 @@ export const size: Bicoder<number> = {
 export const buffer: Bicoder<ArrayBuffer> = {
   encode(stream, value) {
     size.encode(stream, value.byteLength);
-
-    new Uint8Array(stream.data.buffer).set(
-      new Uint8Array(value),
-      stream.offset,
-    );
-
-    stream.offset += value.byteLength;
+    stream.writeBuffer(value);
   },
   decode(stream) {
     const sz = size.decode(stream);
-
-    const buf = stream.data.buffer.slice(
-      stream.offset,
-      stream.offset + sz,
-    );
-
-    stream.offset += sz;
-
-    return buf;
+    return stream.readBuffer(sz);
   },
   test(value): value is ArrayBuffer {
     return value instanceof ArrayBuffer;
@@ -93,13 +77,12 @@ export const buffer: Bicoder<ArrayBuffer> = {
 
 export const number: Bicoder<number> = {
   encode(stream, value) {
-    stream.data.setFloat64(stream.offset, value);
-    stream.offset += 8;
+    const buf = new ArrayBuffer(8);
+    new DataView(buf).setFloat64(0, value);
+    stream.writeBuffer(buf);
   },
   decode(stream) {
-    const value = stream.data.getFloat64(stream.offset);
-    stream.offset += 8;
-    return value;
+    return new DataView(stream.readBuffer(8)).getFloat64(0);
   },
   test(value): value is number {
     return typeof value === "number";
@@ -122,13 +105,10 @@ export const string: Bicoder<string> = {
 
 export const boolean: Bicoder<boolean> = {
   encode(stream, value) {
-    stream.data.setUint8(stream.offset, value ? 1 : 0);
-    stream.offset++;
+    stream.writeByte(value ? 1 : 0);
   },
   decode(stream) {
-    const byte = stream.data.getUint8(stream.offset);
-    stream.offset++;
-    return byte !== 1; // TODO: Be strict
+    return stream.readByte() !== 1; // TODO: Be strict
   },
   test(value): value is boolean {
     return typeof value === "boolean";
@@ -354,8 +334,7 @@ export function enum_<T extends Primitive[]>(
 export const bigint: Bicoder<bigint> = {
   encode(stream, value) {
     if (value === 0n) {
-      stream.data.setUint8(stream.offset, 0);
-      stream.offset++;
+      stream.writeByte(0);
       return;
     }
 
@@ -369,18 +348,12 @@ export const bigint: Bicoder<bigint> = {
     let pos = 0;
 
     if (hex.length % 2 === 1) {
-      stream.data.setUint8(stream.offset, parseInt(hex[0], 16));
-      stream.offset++;
+      stream.writeByte(parseInt(hex[0], 16));
       pos++;
     }
 
     for (; pos < hex.length; pos += 2) {
-      stream.data.setUint8(
-        stream.offset,
-        parseInt(hex.slice(pos, pos + 2), 16),
-      );
-
-      stream.offset++;
+      stream.writeByte(parseInt(hex.slice(pos, pos + 2), 16));
     }
   },
   decode(stream) {
@@ -395,8 +368,7 @@ export const bigint: Bicoder<bigint> = {
     let str = "0x";
 
     for (let i = 0; i < sz; i++) {
-      str += stream.data.getUint8(stream.offset).toString(16).padStart(2, "0");
-      stream.offset++;
+      str += stream.readByte().toString(16).padStart(2, "0");
     }
 
     const absValue = BigInt(str);
