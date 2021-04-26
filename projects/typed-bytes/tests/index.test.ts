@@ -1,4 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
+import {
+  assert,
+  assertEquals,
+} from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 import * as tb from "../mod.ts";
 
@@ -250,3 +253,39 @@ Deno.test("bicode bigints", () =>
     { value: 2n, bytes: [2, 2] },
     { value: 123456n, bytes: [6, 1, 226, 64] },
   ]));
+
+Deno.test("bicode custom class", () => {
+  class Point {
+    constructor(
+      public x: number,
+      public y: number,
+    ) {}
+  }
+
+  const pointBicoder: tb.Bicoder<Point> = {
+    encode(stream, point) {
+      stream.write(tb.number, point.x);
+      stream.write(tb.number, point.y);
+    },
+    decode(stream) {
+      const x = stream.read(tb.number);
+      const y = stream.read(tb.number);
+
+      return new Point(x, y);
+    },
+    test(value): value is Point {
+      return value instanceof Point;
+    },
+    echo(value) {
+      return value;
+    },
+  };
+
+  const bb = tb.BufferBicoder(pointBicoder);
+
+  const buffer = bb.encode(new Point(1, 2));
+  const point = bb.decode(buffer);
+
+  assertEquals(point, new Point(1, 2));
+  assert(point instanceof Point);
+});
