@@ -268,10 +268,10 @@ Deno.test("bicode custom class", () => {
       stream.write(tb.number, point.y);
     },
     decode(stream) {
-      const x = stream.read(tb.number);
-      const y = stream.read(tb.number);
-
-      return new Point(x, y);
+      return new Point(
+        stream.read(tb.number),
+        stream.read(tb.number),
+      );
     },
     test(value): value is Point {
       return value instanceof Point;
