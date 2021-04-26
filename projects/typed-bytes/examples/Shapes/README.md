@@ -4,6 +4,8 @@ Suppose we were making graphics application where the user can draw shapes on a
 canvas. We want to be able to be able to encode the canvas and its shapes so we
 can save it to disk, synchronize it with a remote display, or what-have-you.
 
+## Step 1: Size
+
 Let's start with the size of the canvas:
 
 ```ts
@@ -37,6 +39,8 @@ based, so we're happy with whole numbers. We can replace `tb.number` with
 ```
 
 Just four bytes! Now we're talking.
+
+## Step 2: Add a Circle
 
 Let's add a shape. We'll start with circles. You like circles, right? I like
 circles. Well a circle has a center and a radius, so we can define it like
@@ -89,6 +93,8 @@ These changes are reflected in [`step03.ts`](./step03.ts). Here's the output:
 
 Just three bytes added. One for each new field.
 
+(TODO: Add picture.)
+
 You might be wondering how we can get away with a single byte for these numbers.
 The reason is that we're using a variable length encoding. Here's a breakdown
 of `720`:
@@ -125,3 +131,54 @@ advantage that we always start from the same place-value (1) and increase from
 there - we don't need to know how long the sequence is going to be to start
 knowing what the digits mean. I find this more elegant but there are arguments
 on both sides 🤷‍♂️🤓.
+
+## Step 3: Not Just One Circle
+
+That's *one* circle. We are not satisfied with that number of circles. We need
+an array.
+
+```diff
+-  circle: Circle,
++  shapes: tb.array(Circle),
+```
+
+This allows us to add our actual circles like this:
+
+```diff
+-  circle: {
+-    position: { x: 0, y: 0 },
+-    radius: 100,
+-  },
++  shapes: [
++    {
++      position: { x: 0, y: 0 },
++      radius: 100,
++    },
++    {
++      position: { x: 0, y: 20 },
++      radius: 80,
++    },
++    {
++      position: { x: 0, y: 40 },
++      radius: 60,
++    },
++  ],
+```
+
+And the output:
+
+```ts
+  128,  10,     // width:  1280
+  208,  5,      // height:  720
+    3,          // 3 shapes (glad we didn't use 64-bit floats for array lengths)
+    0,  0, 100, // Circle at (0,  0), radius: 100
+    0, 40,  80, // Circle at (0, 20), radius:  80
+    0, 80,  60, // Circle at (0, 40), radius:  60
+```
+
+No waste, right?
+
+Notice that the y-coordinate of 20 for the second circle is actually encoded
+as 40. This is because we're using `isize`, and allowing for negative numbers
+means our positive numbers need to be larger. All the odd numbers are used to
+encode negatives.
