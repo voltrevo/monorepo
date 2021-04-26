@@ -1,6 +1,6 @@
 # Typed Bytes
 
-*A binary encoding library for TypeScript*
+*A binary encoding library for TypeScript.*
 
 ## Hello World
 
@@ -21,3 +21,33 @@ console.log(new Uint8Array(
   ]
 */
 ```
+
+## About
+
+`typed-bytes` provides convenient type-aware binary encoding and decoding. The
+type awareness provides two main benefits:
+
+1. Smaller encoded size
+2. Type information is present on decoded values
+
+## Why Use `typed-bytes` Instead Of...
+
+### MessagePack
+
+TODO
+
+### Protocol Buffers
+
+TODO
+
+### Avro
+
+TODO
+
+### Cap'n Proto
+
+TODO
+
+### Flat Buffers
+
+TODO
