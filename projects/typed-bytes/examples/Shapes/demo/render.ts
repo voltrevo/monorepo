@@ -27,7 +27,10 @@ export default function render(drawing: shapes.Drawing) {
           case "circle": {
             const sqDist = SqDist({ x, y }, shape.position);
 
-            if (sqDist < shape.radius ** 2) {
+            if (
+              (shape.radius - 1) ** 2 <= sqDist &&
+              sqDist < shape.radius ** 2
+            ) {
               data.set(black, i);
             }
 
