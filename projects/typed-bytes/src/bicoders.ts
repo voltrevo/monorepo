@@ -103,6 +103,25 @@ export const buffer: Bicoder<ArrayBuffer> = {
   echo,
 };
 
+export const byte: Bicoder<number> = {
+  encode(stream, value) {
+    stream.writeByte(value);
+  },
+  decode(stream) {
+    return stream.readByte();
+  },
+  test(value): value is number {
+    return (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      0 <= value &&
+      value < 256 &&
+      value === Math.round(value)
+    );
+  },
+  echo,
+};
+
 export const number: Bicoder<number> = {
   encode(stream, value) {
     const buf = new ArrayBuffer(8);
