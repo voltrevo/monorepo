@@ -12,20 +12,20 @@ This allows us to add our actual circles like this:
 
 ```diff
 -  circle: {
--    position: { x: 0, y: 0 },
+-    position: { x: 640, y: 360 },
 -    radius: 100,
 -  },
 +  shapes: [
 +    {
-+      position: { x: 0, y: 0 },
++      position: { x: 640, y: 360 },
 +      radius: 100,
 +    },
 +    {
-+      position: { x: 0, y: 20 },
++      position: { x: 640, y: 380 },
 +      radius: 80,
 +    },
 +    {
-+      position: { x: 0, y: 40 },
++      position: { x: 640, y: 400 },
 +      radius: 60,
 +    },
 +  ],
@@ -34,12 +34,13 @@ This allows us to add our actual circles like this:
 And the output:
 
 ```ts
-  128,  10,     // width:  1280
-  208,  5,      // height:  720
-    3,          // 3 shapes (glad we didn't use 64-bit floats for array lengths)
-    0,  0, 100, // Circle at (0,  0), radius: 100
-    0, 40,  80, // Circle at (0, 20), radius:  80
-    0, 80,  60, // Circle at (0, 40), radius:  60
+  128,  10,               // width:  1280
+  208,   5,               // height:  720
+    3,                    // 3 shapes (glad we didn't use 64-bit floats for
+                          // array lengths)
+  128,  10, 208,  5, 100, // Circle at (640, 360), radius: 100
+  128,  10, 248,  5, 100, // Circle at (640, 380), radius:  80
+  128,  10, 160,  6, 100, // Circle at (640, 400), radius:  60
 ```
 
 No waste, right?
@@ -48,5 +49,7 @@ Notice that the y-coordinate of 20 for the second circle is actually encoded
 as 40. This is because we're using `isize`, and allowing for negative numbers
 means our positive numbers need to be larger. All the odd numbers are used to
 encode negatives.
+
+![Drawing](./drawing.png)
 
 ## [Step 5: More Shapes](../step05)

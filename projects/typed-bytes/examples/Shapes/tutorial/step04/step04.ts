@@ -26,15 +26,15 @@ const drawing: Drawing = {
   canvas: { width: 1280, height: 720 },
   shapes: [
     {
-      position: { x: 0, y: 0 },
+      position: { x: 640, y: 360 },
       radius: 100,
     },
     {
-      position: { x: 0, y: 20 },
+      position: { x: 640, y: 380 },
       radius: 80,
     },
     {
-      position: { x: 0, y: 40 },
+      position: { x: 640, y: 400 },
       radius: 60,
     },
   ],
