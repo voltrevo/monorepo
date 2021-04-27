@@ -11,6 +11,10 @@ export default function render(drawing: shapes.Drawing) {
   const rawSize = 4 * drawing.canvas.width * drawing.canvas.height;
   const data = new Uint8Array(rawSize);
 
+  // TODO: Filling with white here. Remove this to leave it transparent later
+  // when this is easy to implement with shapes.
+  data.fill(255);
+
   const black = Uint8Array.from([0, 0, 0, 255]);
 
   // TODO: Loop tiling?
