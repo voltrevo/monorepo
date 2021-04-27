@@ -44,6 +44,17 @@ const drawing: shapes.Drawing = {
       outline: null,
       fill: colors.blue,
     },
+    {
+      type: "square",
+      position: { x: 50, y: 50 },
+      sideLength: 50,
+      rotation: 5,
+      outline: {
+        thickness: 3,
+        color: colors.black,
+      },
+      fill: colors.blue,
+    },
   ],
 };
 

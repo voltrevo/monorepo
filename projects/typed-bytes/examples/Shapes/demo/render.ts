@@ -11,6 +11,16 @@ function toColorBytes(color: shapes.Color): Uint8Array {
   return Uint8Array.from([color.red, color.green, color.blue, color.alpha]);
 }
 
+function rotate(position: shapes.Position, angle: number): shapes.Position {
+  const sin = Math.sin(angle / 360 * (2 * Math.PI));
+  const cos = Math.cos(angle / 360 * (2 * Math.PI));
+
+  return {
+    x: cos * position.x - sin * position.y,
+    y: sin * position.x + cos * position.y,
+  };
+}
+
 export default function render(drawing: shapes.Drawing) {
   const rawSize = 4 * drawing.canvas.width * drawing.canvas.height;
   const data = new Uint8Array(rawSize);
@@ -42,13 +52,36 @@ export default function render(drawing: shapes.Drawing) {
             break;
           }
 
-          case "square": {
-            console.log("Not implemented: square");
+          case "triangle": {
+            console.log("Not implemented: triangle");
             break;
           }
 
-          case "triangle": {
-            console.log("Not implemented: triangle");
+          case "square": {
+            const relPos = rotate(
+              {
+                x: x - shape.position.x,
+                y: y - shape.position.y,
+              },
+              -shape.rotation,
+            );
+
+            const radius = shape.sideLength / 2;
+
+            if (Math.abs(relPos.x) < radius && Math.abs(relPos.y) < radius) {
+              if (
+                shape.outline !== null &&
+                (
+                  Math.abs(relPos.x) >= (radius - shape.outline.thickness) ||
+                  Math.abs(relPos.y) >= (radius - shape.outline.thickness)
+                )
+              ) {
+                data.set(toColorBytes(shape.outline.color), i);
+              } else if (shape.fill !== null) {
+                data.set(toColorBytes(shape.fill), i);
+              }
+            }
+
             break;
           }
 
