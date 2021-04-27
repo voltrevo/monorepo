@@ -66,3 +66,25 @@ export function regularPolygonContainsPoint(
   for (let i = 0; i < polygon.sides; i++) {
   }
 }
+
+export function blend(bottom: shapes.Color, top: shapes.Color) {
+  if (top.alpha === 255) {
+    return top;
+  }
+
+  const newAlpha = (1 - (1 - top.alpha / 255) * (1 - bottom.alpha / 255));
+
+  const topShare = top.alpha / 255;
+  const totalShare = newAlpha;
+  const bottomShare = totalShare - topShare;
+
+  const topMul = topShare / totalShare;
+  const bottomMul = bottomShare / totalShare;
+
+  return {
+    red: Math.round(topMul * top.red + bottomMul * bottom.red),
+    green: Math.round(topMul * top.green + bottomMul * bottom.green),
+    blue: Math.round(topMul * top.blue + bottomMul * bottom.blue),
+    alpha: Math.round(255 * newAlpha),
+  };
+}

@@ -7,14 +7,13 @@ import * as graphics from "./graphics.ts";
 export default function render(drawing: shapes.Drawing) {
   const rawSize = 4 * drawing.canvas.width * drawing.canvas.height;
   const data = new Uint8Array(rawSize);
-  const bgColorBytes = graphics.toColorBytes(drawing.canvas.background);
 
   // TODO: Loop tiling?
   for (let x = 0; x < drawing.canvas.width; x++) {
     for (let y = 0; y < drawing.canvas.height; y++) {
       const i = 4 * (y * drawing.canvas.width + x);
 
-      data.set(bgColorBytes, i);
+      let color = drawing.canvas.background;
 
       for (const shape of drawing.shapes) {
         switch (shape.type) {
@@ -26,9 +25,9 @@ export default function render(drawing: shapes.Drawing) {
                 shape.outline !== null &&
                 (shape.radius - shape.outline.thickness) ** 2 <= sqDist
               ) {
-                data.set(graphics.toColorBytes(shape.outline.color), i);
+                color = graphics.blend(color, shape.outline.color);
               } else if (shape.fill !== null) {
-                data.set(graphics.toColorBytes(shape.fill), i);
+                color = graphics.blend(color, shape.fill);
               }
             }
 
@@ -59,9 +58,9 @@ export default function render(drawing: shapes.Drawing) {
                   Math.abs(relPos.y) >= (radius - shape.outline.thickness)
                 )
               ) {
-                data.set(graphics.toColorBytes(shape.outline.color), i);
+                color = graphics.blend(color, shape.outline.color);
               } else if (shape.fill !== null) {
-                data.set(graphics.toColorBytes(shape.fill), i);
+                color = graphics.blend(color, shape.fill);
               }
             }
 
@@ -72,6 +71,8 @@ export default function render(drawing: shapes.Drawing) {
             never(shape);
         }
       }
+
+      data.set(graphics.toColorBytes(color), i);
     }
   }
 
