@@ -106,3 +106,5 @@ How are we to know this a `Square` and not a `Triangle`? It's there in the
 encoding, but that's internal to the encoding, we told the decoder this is the
 structure we wanted. There's nothing stopping us from making decoders that
 produce ambiguous results.
+
+## [Step 6: Tell Shapes Apart](./step06)

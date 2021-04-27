@@ -15,3 +15,5 @@ console.log(new Uint8Array(buffer)); /*
   64, 134, 128, 0, 0, 0, 0, 0, //  720
 */
 ```
+
+## [Step 2: Use `size` for Size](./step02)

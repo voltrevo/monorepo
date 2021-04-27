@@ -89,3 +89,5 @@ advantage that we always start from the same place-value (1) and increase from
 there - we don't need to know how long the sequence is going to be to start
 knowing what the digits mean. I find this more elegant but there are arguments
 on both sides 🤷‍♂️🤓.
+
+## [Step 4: Not Just One Circle](./step04)
