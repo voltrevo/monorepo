@@ -1,8 +1,18 @@
 import * as tb from "../../../mod.ts";
 
+export const Color = tb.object({
+  red: tb.byte,
+  green: tb.byte,
+  blue: tb.byte,
+  alpha: tb.byte,
+});
+
+export type Color = tb.TypeOf<typeof Color>;
+
 export const Canvas = tb.object({
   width: tb.size,
   height: tb.size,
+  background: Color,
 });
 
 export type Canvas = tb.TypeOf<typeof Canvas>;
@@ -12,12 +22,21 @@ export const Position = tb.object({
   y: tb.isize,
 });
 
+const outlineAndFill = {
+  outline: tb.optional(tb.object({
+    color: Color,
+    thickness: tb.size,
+  })),
+  fill: tb.optional(Color),
+};
+
 export type Position = tb.TypeOf<typeof Position>;
 
 export const Circle = tb.object({
   type: tb.exact("circle"),
   position: Position,
   radius: tb.size,
+  ...outlineAndFill,
 });
 
 export type Circle = tb.TypeOf<typeof Circle>;
@@ -27,6 +46,7 @@ export const Triangle = tb.object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
+  ...outlineAndFill,
 });
 
 export type Triangle = tb.TypeOf<typeof Triangle>;
@@ -36,6 +56,7 @@ export const Square = tb.object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
+  ...outlineAndFill,
 });
 
 export type Square = tb.TypeOf<typeof Square>;

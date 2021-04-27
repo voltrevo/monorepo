@@ -53,3 +53,12 @@ Now we can add `outline` and `fill` to our shapes:
 +  ...outlineAndFill,
  });
 ```
+
+![Drawing](./drawing.png)
+
+| Bytes         | Format |
+|--------------:|:-------|
+|     3,686,400 | raw    |
+|        21,288 | .png   |
+|          TODO | .svg   |
+|            55 | .shape |
