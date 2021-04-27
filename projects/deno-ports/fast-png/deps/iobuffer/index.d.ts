@@ -3,8 +3,7 @@ declare type InputData =
   | number
   | ArrayBufferLike
   | ArrayBufferView
-  | IOBuffer
-  | Buffer;
+  | IOBuffer;
 interface IOBufferOptions {
   /**
      * Ignore the first n bytes of the ArrayBuffer.
