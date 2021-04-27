@@ -1,4 +1,4 @@
-import * as tb from "../../mod.ts";
+import * as tb from "../../../../mod.ts";
 
 const Canvas = tb.object({
   width: tb.size,
@@ -25,7 +25,7 @@ type Drawing = tb.TypeOf<typeof Drawing>;
 const drawing: Drawing = {
   canvas: { width: 1280, height: 720 },
   circle: {
-    position: { x: 0, y: 0 },
+    position: { x: 640, y: 360 },
     radius: 100,
   },
 };

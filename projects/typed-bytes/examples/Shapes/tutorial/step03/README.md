@@ -33,7 +33,7 @@ For example:
 const drawing: Drawing = {
   canvas: { width: 1280, height: 720 },
   circle: {
-    position: { x: 0, y: 0 },
+    position: { x: 640, y: 360 },
     radius: 100,
   },
 };
@@ -44,18 +44,18 @@ These changes are reflected in [`step03.ts`](./step03.ts). Here's the output:
 ```ts
   128, 10, // width:  1280
   208,  5, // height:  720
-    0,     // x: 0
-    0,     // y: 0
+  128, 10, // x: 640
+  208,  5, // y: 360
   100,     // radius: 100
 ```
 
-Just three bytes added. One for each new field.
+Just five bytes added. And we have a circle, yay:
 
-(TODO: Add picture.)
+![Drawing](./drawing.png)
 
-You might be wondering how we can get away with a single byte for these numbers.
-The reason is that we're using a variable length encoding. Here's a breakdown
-of `720`:
+You might be wondering how we can get away with one or two bytes for these
+numbers. The reason is that we're using a variable length encoding. Here's a
+breakdown of `720`:
 
 ```
 Byte (decimal)        208          5

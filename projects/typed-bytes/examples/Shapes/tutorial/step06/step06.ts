@@ -1,4 +1,4 @@
-import * as tb from "../../mod.ts";
+import * as tb from "../../../../mod.ts";
 
 const Position = tb.object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers

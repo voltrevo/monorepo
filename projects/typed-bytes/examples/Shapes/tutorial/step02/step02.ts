@@ -1,4 +1,4 @@
-import * as tb from "../../mod.ts";
+import * as tb from "../../../../mod.ts";
 
 const Canvas = tb.object({
   width: tb.size,
