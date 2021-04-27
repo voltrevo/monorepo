@@ -39,10 +39,10 @@ const drawing: shapes.Drawing = {
     },
     {
       type: "circle",
-      position: { x: 640, y: 400 },
+      position: { x: 640, y: 430 },
       radius: 60,
       outline: null,
-      fill: colors.blue,
+      fill: { ...colors.blue, alpha: 128 },
     },
     {
       type: "square",
