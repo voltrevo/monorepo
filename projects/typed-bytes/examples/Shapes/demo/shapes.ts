@@ -133,7 +133,7 @@ export const Shape = tb.union(
 export const Drawing = tb.object({
   canvas: Canvas,
   registry: tb.stringMap(Shape),
-  shapes: tb.array(Shape),
+  shape: Shape,
 });
 
 export type Drawing = tb.TypeOf<typeof Drawing>;

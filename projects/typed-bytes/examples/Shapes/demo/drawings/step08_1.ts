@@ -226,7 +226,7 @@ export default ensureType<shapes.Drawing>()({
     background: null,
   },
   registry: {},
-  shapes: [
+  shape: [
     ...entities.chimney,
     ...entities.house,
     ...entities.door,
