@@ -72,11 +72,67 @@ export const Square = tb.object({
 
 export type Square = tb.TypeOf<typeof Square>;
 
-export const Shape = tb.union(Circle, Triangle, Square, RegularPolygon);
-export type Shape = tb.TypeOf<typeof Shape>;
+export const Reference = tb.string;
+export type Reference = tb.TypeOf<typeof Reference>;
+
+export type MetaShape = Shape[];
+
+export type Transformer = {
+  type: "transformer";
+  origin: null | Position;
+  rotate: null | number;
+  scale: (
+    | null
+    | [number, number]
+    | { x: [number, number]; y: [number, number] }
+  );
+  shape: Shape;
+};
+
+export type Shape = (
+  | Circle
+  | Triangle
+  | Square
+  | RegularPolygon
+  | MetaShape
+  | Reference
+  | Transformer
+);
+
+export const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
+
+export const MetaShape = tb.array(ShapeReference);
+
+export const Ratio = tb.tuple(tb.isize, tb.size);
+
+export const Transformer = tb.object({
+  type: tb.exact("transformer"),
+  origin: tb.optional(Position),
+  rotate: tb.optional(tb.isize),
+  scale: tb.union(
+    tb.null_,
+    Ratio,
+    tb.object({
+      x: Ratio,
+      y: Ratio,
+    }),
+  ),
+  shape: ShapeReference,
+});
+
+export const Shape = tb.union(
+  Circle,
+  Triangle,
+  Square,
+  RegularPolygon,
+  MetaShape,
+  Reference,
+  Transformer,
+);
 
 export const Drawing = tb.object({
   canvas: Canvas,
+  registry: tb.stringMap(Shape),
   shapes: tb.array(Shape),
 });
 

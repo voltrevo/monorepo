@@ -75,7 +75,15 @@ export function regularPolygonContainsPoint(
   return polygonContainsPoint(polygonPoints, point);
 }
 
-export function blend(bottom: shapes.Color, top: shapes.Color) {
+export function blend(bottom: shapes.Color | null, top: shapes.Color | null) {
+  if (top === null) {
+    return bottom;
+  }
+
+  if (bottom === null) {
+    return top;
+  }
+
   if (top.alpha === 255) {
     return top;
   }

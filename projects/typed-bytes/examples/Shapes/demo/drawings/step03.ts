@@ -8,6 +8,7 @@ export default ensureType<shapes.Drawing>()({
     height: 720,
     background: null,
   },
+  registry: {},
   shapes: [
     {
       type: "circle",

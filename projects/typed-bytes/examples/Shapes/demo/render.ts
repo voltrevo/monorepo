@@ -15,7 +15,7 @@ export default function render(drawing: shapes.Drawing) {
 
       const checkerFlag = (Math.floor(x / 20) + Math.floor(y / 20)) % 2 === 0;
 
-      let color: shapes.Color = {
+      let color: shapes.Color | null = {
         red: 128,
         green: 128,
         blue: 128,
@@ -27,90 +27,12 @@ export default function render(drawing: shapes.Drawing) {
       }
 
       for (const shape of drawing.shapes) {
-        switch (shape.type) {
-          case "circle": {
-            const sqDist = graphics.SqDist({ x, y }, shape.position);
-
-            if (sqDist < shape.radius ** 2) {
-              if (
-                shape.outline !== null &&
-                (shape.radius - shape.outline.thickness) ** 2 <= sqDist
-              ) {
-                color = graphics.blend(color, shape.outline.color);
-              } else if (shape.fill !== null) {
-                color = graphics.blend(color, shape.fill);
-              }
-            }
-
-            break;
-          }
-
-          case "triangle": {
-            const shapeColor = renderRegularPolygon(
-              {
-                type: "regular-polygon",
-                sides: 3,
-                position: shape.position,
-                radius: shape.sideLength / (2 * Math.sin(Math.PI / 3)),
-                rotation: shape.rotation,
-                outline: shape.outline,
-                fill: shape.fill,
-              },
-              x,
-              y,
-            );
-
-            if (shapeColor !== null) {
-              color = graphics.blend(color, shapeColor);
-            }
-
-            break;
-          }
-
-          case "square": {
-            const relPos = graphics.rotate(
-              {
-                x: x - shape.position.x,
-                y: y - shape.position.y,
-              },
-              -shape.rotation,
-            );
-
-            const radius = shape.sideLength / 2;
-
-            if (Math.abs(relPos.x) < radius && Math.abs(relPos.y) < radius) {
-              if (
-                shape.outline !== null &&
-                (
-                  Math.abs(relPos.x) >= (radius - shape.outline.thickness) ||
-                  Math.abs(relPos.y) >= (radius - shape.outline.thickness)
-                )
-              ) {
-                color = graphics.blend(color, shape.outline.color);
-              } else if (shape.fill !== null) {
-                color = graphics.blend(color, shape.fill);
-              }
-            }
-
-            break;
-          }
-
-          case "regular-polygon": {
-            const shapeColor = renderRegularPolygon(shape, x, y);
-
-            if (shapeColor !== null) {
-              color = graphics.blend(color, shapeColor);
-            }
-
-            break;
-          }
-
-          default:
-            never(shape);
-        }
+        color = graphics.blend(color, renderShape(drawing, shape, { x, y }));
       }
 
-      data.set(graphics.toColorBytes(color), i);
+      if (color !== null) {
+        data.set(graphics.toColorBytes(color), i);
+      }
     }
   }
 
@@ -119,6 +41,144 @@ export default function render(drawing: shapes.Drawing) {
     height: drawing.canvas.height,
     data,
   });
+}
+
+function renderShape(
+  drawing: shapes.Drawing,
+  shape: shapes.Shape,
+  position: shapes.Position,
+): shapes.Color | null {
+  const { x, y } = position;
+
+  if (typeof shape === "string") {
+    const registeredShape = drawing.registry[shape];
+
+    if (registeredShape === undefined) {
+      console.error("Shape not found: ", shape);
+      return null;
+    }
+
+    return renderShape(drawing, registeredShape, position);
+  }
+
+  if (Array.isArray(shape)) {
+    let color: shapes.Color | null = null;
+
+    for (const s of shape) {
+      color = graphics.blend(color, renderShape(drawing, s, position));
+    }
+
+    return color;
+  }
+
+  switch (shape.type) {
+    case "circle": {
+      const sqDist = graphics.SqDist(position, shape.position);
+
+      if (sqDist < shape.radius ** 2) {
+        if (
+          shape.outline !== null &&
+          (shape.radius - shape.outline.thickness) ** 2 <= sqDist
+        ) {
+          return shape.outline.color;
+        }
+
+        return shape.fill;
+      }
+
+      return null;
+    }
+
+    case "triangle": {
+      const shapeColor = renderRegularPolygon(
+        {
+          type: "regular-polygon",
+          sides: 3,
+          position: shape.position,
+          radius: shape.sideLength / (2 * Math.sin(Math.PI / 3)),
+          rotation: shape.rotation,
+          outline: shape.outline,
+          fill: shape.fill,
+        },
+        x,
+        y,
+      );
+
+      return shapeColor;
+    }
+
+    case "square": {
+      const relPos = graphics.rotate(
+        {
+          x: x - shape.position.x,
+          y: y - shape.position.y,
+        },
+        -shape.rotation,
+      );
+
+      const radius = shape.sideLength / 2;
+
+      if (Math.abs(relPos.x) < radius && Math.abs(relPos.y) < radius) {
+        if (
+          shape.outline !== null &&
+          (
+            Math.abs(relPos.x) >= (radius - shape.outline.thickness) ||
+            Math.abs(relPos.y) >= (radius - shape.outline.thickness)
+          )
+        ) {
+          return shape.outline.color;
+        }
+
+        return shape.fill;
+      }
+
+      return null;
+    }
+
+    case "regular-polygon": {
+      return renderRegularPolygon(shape, x, y);
+    }
+
+    case "transformer": {
+      let newPosition = position;
+
+      if (shape.scale !== null) {
+        if (Array.isArray(shape.scale)) {
+          // Using the reverse because we're actually transforming the point
+          // instead of the shape
+          const ratio = shape.scale[1] / shape.scale[0];
+
+          newPosition = {
+            x: ratio * newPosition.x,
+            y: ratio * newPosition.y,
+          };
+        } else if ("x" in shape.scale) {
+          newPosition = {
+            x: shape.scale.x[1] / shape.scale.x[0] * newPosition.x,
+            y: shape.scale.y[1] / shape.scale.y[0] * newPosition.y,
+          };
+        } else {
+          never(shape.scale);
+        }
+      }
+
+      if (shape.rotate !== null) {
+        graphics.rotate(newPosition, -shape.rotate);
+      }
+
+      if (shape.origin !== null) {
+        newPosition = {
+          x: newPosition.x - shape.origin.x,
+          y: newPosition.y - shape.origin.y,
+        };
+      }
+
+      return renderShape(drawing, shape.shape, newPosition);
+    }
+
+    default:
+      never(shape);
+  }
 }
 
 function renderRegularPolygon(
