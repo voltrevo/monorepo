@@ -192,3 +192,9 @@ const Transformer = tb.object({
 // Nope, had to go manual due to circularity:
 // type Transformer = tb.TypeOf<typeof Transformer>;
 ```
+
+Whew! That was fun.
+
+## [Step 9: Making the House Smaller](../step09)
+## [Step 10: Lots of Houses!](../step10)
+## [Step 11: Shapes That Loop Into Themselves](../step11)
