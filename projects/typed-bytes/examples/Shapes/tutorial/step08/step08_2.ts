@@ -59,6 +59,9 @@ const Square = tb.object({
 
 type Square = tb.TypeOf<typeof Square>;
 
+const Reference = tb.string;
+type Reference = tb.TypeOf<typeof Reference>;
+
 type MetaShape = {
   type: "meta-shape";
   shapes: Shape[];
@@ -68,7 +71,8 @@ type Shape =
   | Circle
   | Triangle
   | Square
-  | MetaShape;
+  | MetaShape
+  | Reference;
 
 const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
 
@@ -77,7 +81,7 @@ const MetaShape = tb.object({
   shapes: tb.array(ShapeReference),
 });
 
-const Shape = tb.union(Circle, Triangle, Square, MetaShape);
+const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
 
 const shapes: Shape[] = [
   // chimney
@@ -301,6 +305,7 @@ const shapes: Shape[] = [
 
 const Drawing = tb.object({
   canvas: Canvas,
+  registry: tb.stringMap(Shape),
   shapes: tb.array(Shape),
 });
 
@@ -308,6 +313,7 @@ type Drawing = tb.TypeOf<typeof Drawing>;
 
 const drawing: Drawing = {
   canvas: { width: 1280, height: 720, background: null },
+  registry: {},
   shapes,
 };
 

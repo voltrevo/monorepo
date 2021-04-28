@@ -4,7 +4,7 @@ Look, I drew a house:
 
 ![Drawing 1](./drawing_1.png)
 
-[Code](./step08_1.ts)
+[Source](./step08_1.ts)
 
 (If you're an artist, I'm really very sorry. Please see
 [CONTRIBUTING.md](../../../../CONTRIBUTING.md) 😄.)
@@ -77,7 +77,7 @@ explicit typing. Only in this recursive interaction between `MetaShape` and
 ```ts
 type MetaShape = {
   type: "meta-shape";
-  shapes: Shape[];
+  shapes: Shape[]; // In the type system, using this early is perfectly normal
 };
 
 type Shape =
@@ -90,4 +90,71 @@ type Shape =
 ```diff
 -const ShapeReference = tb.defer(() => Shape);
 +const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
+```
+
+[Source](./step08_2.ts)
+
+Now we could use meta shapes to organize things a bit, e.g.:
+
+```ts
+const windows: Shape = {
+  type: "meta-shape",
+  shapes: [
+    // Left window
+    {
+      type: "meta-shape",
+      shapes: [
+        { type: "square", ... },
+        { type: "square", ... },
+        { type: "square", ... },
+      ],
+    },
+
+    // Right window
+    {
+      type: "meta-shape",
+      shapes: [
+        { type: "square", ... },
+        { type: "square", ... },
+        { type: "square", ... },
+      ],
+    },
+  ],
+];
+```
+
+That doesn't help that much though. We could also use variables to achieve even
+better code organization. In fact, this is just adding unnecessary bytes.
+
+What we really want to do is re-use the same shape multiple times. For that
+we'll need two more special shape types:
+
+1. A reference to an existing shape from a registry.
+2. A transformer which takes a shape and applies scaling/translation/rotation. (To avoid just re-drawing the same thing.)
+
+The first one is pretty simple:
+
+```diff
+ const Drawing = tb.object({
+   canvas: Canvas,
++  registry: tb.stringMap(Shape),
+   shapes: tb.array(Shape),
+ });
+```
+
+```ts
+const Reference = tb.string;
+type Reference = tb.TypeOf<typeof Reference>;
+```
+
+```diff
+ type Shape =
+   | Circle
+   | Triangle
+   | Square
+   | MetaShape
++  | Reference;
+ ...
+-const Shape = tb.union(Circle, Triangle, Square, MetaShape);
++const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
 ```
