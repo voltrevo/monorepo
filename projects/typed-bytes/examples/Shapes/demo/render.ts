@@ -53,7 +53,7 @@ export default function render(drawing: shapes.Drawing) {
                 position: shape.position,
                 radius: shape.sideLength / (2 * Math.sin(Math.PI / 3)),
                 rotation: shape.rotation,
-                outline: shape.outline && { ...shape.outline, thickness: 2 },
+                outline: shape.outline,
                 fill: shape.fill,
               },
               x,
@@ -146,16 +146,24 @@ function renderRegularPolygon(
     return null;
   }
 
-  const computeInOutline = (thickness: number) =>
-    graphics.regularPolygonContainsPoint(
+  const computeInOutline = (thickness: number) => {
+    // This has to do with the pinch factor that causes the inner radius to
+    // contract by more than the line thickness when the interior angles of the
+    // polygon are small.
+    const adjustedThickness = thickness / (
+      Math.sin(0.5 * (shape.sides - 2) / shape.sides * Math.PI)
+    );
+
+    return graphics.regularPolygonContainsPoint(
       {
         sides: shape.sides,
         center: shape.position,
         rotation: shape.rotation * Math.PI / 180,
-        radius: shape.radius - thickness,
+        radius: shape.radius - adjustedThickness,
       },
       { x, y },
     );
+  };
 
   if (
     shape.outline !== null &&
