@@ -40,7 +40,7 @@ export function polygonContainsPoint(
     let angleDiff = newAngle - angle;
 
     if (Math.abs(angleDiff) > Math.PI) {
-      angleDiff -= Math.sign(angleDiff) * Math.PI;
+      angleDiff -= 2 * Math.sign(angleDiff) * Math.PI;
     }
 
     accumulatedAngle += angleDiff;

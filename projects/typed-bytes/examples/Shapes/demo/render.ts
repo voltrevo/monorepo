@@ -68,7 +68,7 @@ export default function render(drawing: shapes.Drawing) {
 
             if (
               shape.outline !== null &&
-              computeInOutline(shape.outline.thickness)
+              !computeInOutline(shape.outline.thickness)
             ) {
               color = graphics.blend(color, shape.outline.color);
             } else if (shape.fill !== null) {
