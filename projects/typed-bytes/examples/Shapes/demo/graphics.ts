@@ -51,7 +51,7 @@ export function polygonContainsPoint(
   return Math.abs(accumulatedAngle) > Math.PI;
 }
 
-// WIP
+// Untested
 export function regularPolygonContainsPoint(
   polygon: {
     sides: number;
@@ -63,8 +63,18 @@ export function regularPolygonContainsPoint(
 ) {
   const polygonPoints: shapes.Position[] = [];
 
+  const radius = polygon.sideLength / (2 * Math.sin(Math.PI / polygon.sides));
+
   for (let i = 0; i < polygon.sides; i++) {
+    const angle = i * 2 * Math.PI / polygon.sides;
+
+    polygonPoints.push({
+      x: polygon.center.x + radius * Math.sin(angle),
+      y: polygon.center.y - radius * Math.cos(angle),
+    });
   }
+
+  return polygonContainsPoint(polygonPoints, point);
 }
 
 export function blend(bottom: shapes.Color, top: shapes.Color) {
