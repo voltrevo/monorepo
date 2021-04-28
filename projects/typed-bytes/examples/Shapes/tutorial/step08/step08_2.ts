@@ -62,10 +62,7 @@ type Square = tb.TypeOf<typeof Square>;
 const Reference = tb.string;
 type Reference = tb.TypeOf<typeof Reference>;
 
-type MetaShape = {
-  type: "meta-shape";
-  shapes: Shape[];
-};
+type MetaShape = Shape[];
 
 type Shape =
   | Circle
@@ -76,10 +73,7 @@ type Shape =
 
 const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
 
-const MetaShape = tb.object({
-  type: tb.exact("meta-shape"),
-  shapes: tb.array(ShapeReference),
-});
+const MetaShape = tb.array(ShapeReference);
 
 const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
 

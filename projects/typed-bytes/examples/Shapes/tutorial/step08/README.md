@@ -17,10 +17,7 @@ house? Nah. Besides, grouping things together will have other benefits.
 We like shapes, so let's put shapes in our shapes:
 
 ```ts
-const MetaShape = tb.object({
-  type: tb.exact("meta-shape"),
-  shapes: tb.array(Shape),
-});
+const MetaShape = tb.array(Shape);
 ```
 
 And add this to our `Shape` definition...
@@ -43,11 +40,8 @@ const ShapeReference = tb.defer(() => Shape);
 Now we can just use `ShapeReference` as we would `Shape`:
 
 ```diff
- const MetaShape = tb.object({
-   type: tb.exact("meta-shape"),
--  shapes: tb.array(Shape),
-+  shapes: tb.array(ShapeReference),
- });
+-const MetaShape = tb.array(Shape);
++const MetaShape = tb.array(ShapeReference);
 ```
 
 and then we define `Shape` last as before:
@@ -75,10 +69,8 @@ explicit typing. Only in this recursive interaction between `MetaShape` and
 `Triangle`:
 
 ```ts
-type MetaShape = {
-  type: "meta-shape";
-  shapes: Shape[]; // In the type system, using this early is perfectly normal
-};
+// In the type system, using Shape early is perfectly normal
+type MetaShape = Shape[];
 
 type Shape =
   | Circle
@@ -97,28 +89,19 @@ type Shape =
 Now we could use meta shapes to organize things a bit, e.g.:
 
 ```ts
-const windows: Shape = {
-  type: "meta-shape",
-  shapes: [
-    // Left window
-    {
-      type: "meta-shape",
-      shapes: [
-        { type: "square", ... },
-        { type: "square", ... },
-        { type: "square", ... },
-      ],
-    },
+const windows: Shape = [
+  // Left window
+  [
+    { type: "square", ... },
+    { type: "square", ... },
+    { type: "square", ... },
+  ],
 
-    // Right window
-    {
-      type: "meta-shape",
-      shapes: [
-        { type: "square", ... },
-        { type: "square", ... },
-        { type: "square", ... },
-      ],
-    },
+  // Right window
+  [
+    { type: "square", ... },
+    { type: "square", ... },
+    { type: "square", ... },
   ],
 ];
 ```
