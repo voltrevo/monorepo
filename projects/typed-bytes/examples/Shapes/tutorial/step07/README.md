@@ -63,3 +63,5 @@ Now we can add `outline` and `fill` to our shapes:
 |       116,886 | .png   |
 |          TODO | .svg   |
 |           113 | .shape |
+
+## [Step 8: Meta Shapes](../step08)

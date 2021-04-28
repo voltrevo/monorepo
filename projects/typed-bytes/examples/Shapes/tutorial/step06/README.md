@@ -59,3 +59,5 @@ console.log(
 );
 // hello
 ```
+
+## [Step 7: Colors!](../step07)
