@@ -19,7 +19,7 @@ export default function render(drawing: shapes.Drawing) {
         red: 128,
         green: 128,
         blue: 128,
-        alpha: checkerFlag ? 50 : 0,
+        alpha: checkerFlag ? 25 : 0,
       };
 
       if (drawing.canvas.background !== null) {
