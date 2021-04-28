@@ -10,12 +10,11 @@ const Color = tb.object({
 const red = { red: 255, green: 0, blue: 0, alpha: 255 };
 const green = { red: 0, green: 255, blue: 0, alpha: 255 };
 const blue = { red: 0, green: 0, blue: 255, alpha: 255 };
-const halfGrey = { red: 128, green: 128, blue: 128, alpha: 128 };
 
 const Canvas = tb.object({
   width: tb.size,
   height: tb.size,
-  background: Color,
+  background: tb.optional(Color),
 });
 
 const Position = tb.object({
@@ -59,32 +58,60 @@ const Square = tb.object({
 const Shape = tb.union(Circle, Triangle, Square);
 type Shape = tb.TypeOf<typeof Shape>;
 
-const blackOutline = {
+const outline = {
   color: { red: 0, green: 0, blue: 0, alpha: 255 },
   thickness: 3,
 };
 
-const circles: Circle[] = [
+const fillAlpha = 100;
+
+const shapes: Shape[] = [
   {
     type: "circle",
     position: { x: 640, y: 360 },
     radius: 100,
-    outline: blackOutline,
-    fill: red,
+    outline,
+    fill: { ...red, alpha: fillAlpha },
   },
   {
-    type: "circle",
-    position: { x: 640, y: 380 },
-    radius: 80,
-    outline: blackOutline,
-    fill: green,
+    type: "square",
+    position: { x: 640, y: 360 },
+    sideLength: 100,
+    rotation: 0,
+    outline,
+    fill: { ...blue, alpha: fillAlpha },
   },
   {
-    type: "circle",
-    position: { x: 640, y: 400 },
-    radius: 60,
-    outline: null,
-    fill: blue,
+    type: "triangle",
+    position: { x: 440, y: 360 },
+    sideLength: 100,
+    rotation: 0,
+    outline,
+    fill: { ...green, alpha: fillAlpha },
+  },
+  {
+    type: "triangle",
+    position: { x: 840, y: 360 },
+    sideLength: 100,
+    rotation: 0,
+    outline,
+    fill: { ...green, alpha: fillAlpha },
+  },
+  {
+    type: "triangle",
+    position: { x: 640, y: 160 },
+    sideLength: 100,
+    rotation: 0,
+    outline,
+    fill: { ...green, alpha: fillAlpha },
+  },
+  {
+    type: "triangle",
+    position: { x: 640, y: 560 },
+    sideLength: 100,
+    rotation: 0,
+    outline,
+    fill: { ...green, alpha: fillAlpha },
   },
 ];
 
@@ -96,38 +123,38 @@ const Drawing = tb.object({
 type Drawing = tb.TypeOf<typeof Drawing>;
 
 const drawing: Drawing = {
-  canvas: { width: 1280, height: 720, background: halfGrey },
-  shapes: circles,
+  canvas: { width: 1280, height: 720, background: null },
+  shapes,
 };
 
-console.log(new Uint8Array(tb.encodeBuffer(Drawing, drawing))); /*
+console.log(new Uint8Array(tb.encodeBuffer(Drawing, drawing)).slice(100)); /*
   // Canvas
-    128,  10,
-    208,   5,
-    128, 128, 128, 128,
+  128,  10, 208,   5,   0,
 
-  // 3 shapes
-      3,
+  // 6 Shapes
+  6,
 
-  // Shape
-      0,                     // Option 0: Circle
-    128,  10, 208,   5, 100, // Position, radius
-      1,                     // Outline presnt
-           0,   0,   0, 255, // Black
-           3,                // Thickness 3
-      1, 255,   0,   0, 255, // Fill red
+  // Circle
+    0, 128,  10, 208,   5, 100,
+    1,   0,   0,   0, 255,   3,   1, 255,   0,   0, 100,
 
-  // Shape
-      0,                     // Option 0: Circle
-    128,  10, 248,   5,  80, // Position, radius
-      1,                     // Outline presnt
-           0,   0,   0, 255, // Black
-           3,                // Thickness 3
-      1,   0, 255,   0, 255, // Fill green
+  // Square
+    2, 128,  10, 208,   5, 100,   0,
+    1,   0,   0,   0, 255,   3,   1,   0,   0, 255, 100,
 
-  // Shape
-      0,                     // Option 0: Circle
-    128, 10, 160,    6,  60, // Position, radius
-      0,                     // Outline absent
-      1,   0,  0, 255,  255, // Fill blue
+  // Triangle
+    1, 240,   6, 208,   5, 100,   0,
+    1,   0,   0,   0, 255,   3,   1,   0, 255,   0, 100,
+
+  // Triangle
+    1, 144,  13, 208,   5, 100,   0,
+    1,   0,   0,   0, 255,   3,   1,   0, 255,   0, 100,
+
+  // Triangle
+    1, 128,  10, 192,   2, 100,   0,
+    1,   0,   0,   0, 255,   3,   1,   0, 255,   0, 100,
+
+  // Triangle
+    1, 128,  10, 224,   8, 100,   0,
+    1,   0,   0,   0, 255,   3,   1,   0, 255,   0, 100,
 */

@@ -59,6 +59,6 @@ Now we can add `outline` and `fill` to our shapes:
 | Bytes         | Format |
 |--------------:|:-------|
 |     3,686,400 | raw    |
-|        21,288 | .png   |
+|       116,886 | .png   |
 |          TODO | .svg   |
-|            55 | .shape |
+|           113 | .shape |
