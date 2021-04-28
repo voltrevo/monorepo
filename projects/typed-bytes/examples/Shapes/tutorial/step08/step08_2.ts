@@ -22,6 +22,8 @@ const Position = tb.object({
   y: tb.isize,
 });
 
+type Position = tb.TypeOf<typeof Position>;
+
 const outlineAndFill = {
   outline: tb.optional(tb.object({
     color: Color,
@@ -64,18 +66,56 @@ type Reference = tb.TypeOf<typeof Reference>;
 
 type MetaShape = Shape[];
 
-type Shape =
+type Transformer = {
+  type: "transformer";
+  origin: null | Position;
+  rotate: null | number;
+  scale: (
+    | null
+    | [number, number]
+    | { x: [number, number]; y: [number, number] }
+  );
+  shape: Shape;
+};
+
+type Shape = (
   | Circle
   | Triangle
   | Square
   | MetaShape
-  | Reference;
+  | Reference
+  | Transformer
+);
 
 const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
 
 const MetaShape = tb.array(ShapeReference);
 
-const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
+const Ratio = tb.tuple(tb.isize, tb.size);
+
+const Transformer = tb.object({
+  type: tb.exact("transformer"),
+  origin: tb.optional(Position),
+  rotate: tb.optional(tb.isize),
+  scale: tb.union(
+    tb.null_,
+    Ratio,
+    tb.object({
+      x: Ratio,
+      y: Ratio,
+    }),
+  ),
+  shape: ShapeReference,
+});
+
+const Shape = tb.union(
+  Circle,
+  Triangle,
+  Square,
+  MetaShape,
+  Reference,
+  Transformer,
+);
 
 const shapes: Shape[] = [
   // chimney

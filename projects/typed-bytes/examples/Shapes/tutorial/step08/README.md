@@ -141,3 +141,54 @@ type Reference = tb.TypeOf<typeof Reference>;
 -const Shape = tb.union(Circle, Triangle, Square, MetaShape);
 +const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
 ```
+
+**TODO**: Deal with circular references (embrace them and make fractals!)
+
+For transformer though, we need to interact with the circular machinery again:
+
+```diff
+ type MetaShape = Shape[];
+ 
++type Transformer = {
++  type: "transformer";
++  origin: null | Position;
++  rotate: null | number;
++  scale: (
++    | null
++    | [number, number]
++    | { x: [number, number]; y: [number, number] }
++  );
++  shape: Shape;
++};
+
+ type Shape = (
+   | Circle
+   | Triangle
+   | Square
+   | MetaShape
+   | Reference
++  | Transformer
+ );
+```
+
+```ts
+const Ratio = tb.tuple(tb.isize, tb.size);
+
+const Transformer = tb.object({
+  type: tb.exact('transformer'),
+  origin: tb.optional(Position),
+  rotate: tb.optional(tb.isize),
+  scale: tb.union(
+    tb.null_,
+    Ratio,
+    tb.object({
+      x: Ratio,
+      y: Ratio,
+    }),
+  ),
+  shape: ShapeReference,
+});
+
+// Nope, had to go manual due to circularity:
+// type Transformer = tb.TypeOf<typeof Transformer>;
+```
