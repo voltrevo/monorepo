@@ -45,7 +45,7 @@ export default function render(drawing: shapes.Drawing) {
               {
                 sides: shape.sides,
                 center: shape.position,
-                rotation: shape.rotation,
+                rotation: shape.rotation * Math.PI / 180,
                 radius: shape.radius,
               },
               { x, y },
@@ -60,7 +60,7 @@ export default function render(drawing: shapes.Drawing) {
                 {
                   sides: shape.sides,
                   center: shape.position,
-                  rotation: shape.rotation,
+                  rotation: shape.rotation * Math.PI / 180,
                   radius: shape.radius - thickness,
                 },
                 { x, y },

@@ -60,7 +60,7 @@ const drawing: shapes.Drawing = {
       sides: 3,
       position: { x: 800, y: 200 },
       radius: 150,
-      rotation: 0,
+      rotation: 30,
       outline: {
         thickness: 3,
         color: colors.black,
