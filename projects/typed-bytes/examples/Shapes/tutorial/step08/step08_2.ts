@@ -60,7 +60,7 @@ const Square = tb.object({
 type Square = tb.TypeOf<typeof Square>;
 
 type MetaShape = {
-  type: "meta";
+  type: "meta-shape";
   shapes: Shape[];
 };
 
@@ -73,7 +73,7 @@ type Shape =
 const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
 
 const MetaShape = tb.object({
-  type: tb.exact("meta"),
+  type: tb.exact("meta-shape"),
   shapes: tb.array(ShapeReference),
 });
 

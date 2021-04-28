@@ -18,7 +18,7 @@ We like shapes, so let's put shapes in our shapes:
 
 ```ts
 const MetaShape = tb.object({
-  type: tb.exact("meta"),
+  type: tb.exact("meta-shape"),
   shapes: tb.array(Shape),
 });
 ```
@@ -44,7 +44,7 @@ Now we can just use `ShapeReference` as we would `Shape`:
 
 ```diff
  const MetaShape = tb.object({
-   type: tb.exact("meta"),
+   type: tb.exact("meta-shape"),
 -  shapes: tb.array(Shape),
 +  shapes: tb.array(ShapeReference),
  });
@@ -60,7 +60,8 @@ One more problem though. When you use `tb.defer`, you need to specify the type
 explicitly, otherwise you'll get a type error like this:
 
 ```
-'ShapeReference' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+'ShapeReference' implicitly has type 'any' because it does not have a type
+annotation and is referenced directly or indirectly in its own initializer.
 ```
 
 It's kinda fair enough. In principle it may be possible for TypeScript to infer
@@ -75,7 +76,7 @@ explicit typing. Only in this recursive interaction between `MetaShape` and
 
 ```ts
 type MetaShape = {
-  type: "meta";
+  type: "meta-shape";
   shapes: Shape[];
 };
 
