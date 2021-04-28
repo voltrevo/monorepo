@@ -26,9 +26,10 @@ export default function render(drawing: shapes.Drawing) {
         color = graphics.blend(color, drawing.canvas.background);
       }
 
-      for (const shape of drawing.shapes) {
-        color = graphics.blend(color, renderShape(drawing, shape, { x, y }));
-      }
+      color = graphics.blend(
+        color,
+        renderShape(drawing, drawing.shape, { x, y }),
+      );
 
       if (color !== null) {
         data.set(graphics.toColorBytes(color), i);
@@ -142,6 +143,17 @@ function renderShape(
     case "transformer": {
       let newPosition = position;
 
+      if (shape.origin !== null) {
+        newPosition = {
+          x: newPosition.x - shape.origin.x,
+          y: newPosition.y - shape.origin.y,
+        };
+      }
+
+      if (shape.rotate !== null) {
+        newPosition = graphics.rotate(newPosition, -shape.rotate);
+      }
+
       if (shape.scale !== null) {
         if (Array.isArray(shape.scale)) {
           // Using the reverse because we're actually transforming the point
@@ -160,17 +172,6 @@ function renderShape(
         } else {
           never(shape.scale);
         }
-      }
-
-      if (shape.rotate !== null) {
-        graphics.rotate(newPosition, -shape.rotate);
-      }
-
-      if (shape.origin !== null) {
-        newPosition = {
-          x: newPosition.x - shape.origin.x,
-          y: newPosition.y - shape.origin.y,
-        };
       }
 
       return renderShape(drawing, shape.shape, newPosition);
