@@ -55,6 +55,18 @@ const drawing: shapes.Drawing = {
       },
       fill: colors.blue,
     },
+    {
+      type: "regular-polygon",
+      sides: 3,
+      position: { x: 800, y: 200 },
+      radius: 150,
+      rotation: 0,
+      outline: {
+        thickness: 3,
+        color: colors.black,
+      },
+      fill: colors.green,
+    },
   ],
 };
 

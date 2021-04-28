@@ -34,8 +34,47 @@ export default function render(drawing: shapes.Drawing) {
             break;
           }
 
-          case "triangle": {
-            console.log("Not implemented: triangle");
+          case "regular-polygon": {
+            const sqDist = graphics.SqDist({ x, y }, shape.position);
+
+            if (sqDist >= shape.radius ** 2) {
+              break;
+            }
+
+            const containsPoint = graphics.regularPolygonContainsPoint(
+              {
+                sides: shape.sides,
+                center: shape.position,
+                rotation: shape.rotation,
+                radius: shape.radius,
+              },
+              { x, y },
+            );
+
+            if (!containsPoint) {
+              break;
+            }
+
+            const computeInOutline = (thickness: number) =>
+              graphics.regularPolygonContainsPoint(
+                {
+                  sides: shape.sides,
+                  center: shape.position,
+                  rotation: shape.rotation,
+                  radius: shape.radius - thickness,
+                },
+                { x, y },
+              );
+
+            if (
+              shape.outline !== null &&
+              computeInOutline(shape.outline.thickness)
+            ) {
+              color = graphics.blend(color, shape.outline.color);
+            } else if (shape.fill !== null) {
+              color = graphics.blend(color, shape.fill);
+            }
+
             break;
           }
 

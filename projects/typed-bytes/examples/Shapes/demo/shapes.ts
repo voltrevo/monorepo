@@ -41,15 +41,16 @@ export const Circle = tb.object({
 
 export type Circle = tb.TypeOf<typeof Circle>;
 
-export const Triangle = tb.object({
-  type: tb.exact("triangle"),
+export const RegularPolygon = tb.object({
+  type: tb.exact("regular-polygon"),
+  sides: tb.size,
   position: Position,
-  sideLength: tb.size,
+  radius: tb.size,
   rotation: tb.isize,
   ...outlineAndFill,
 });
 
-export type Triangle = tb.TypeOf<typeof Triangle>;
+export type RegularPolygon = tb.TypeOf<typeof RegularPolygon>;
 
 export const Square = tb.object({
   type: tb.exact("square"),
@@ -61,7 +62,7 @@ export const Square = tb.object({
 
 export type Square = tb.TypeOf<typeof Square>;
 
-export const Shape = tb.union(Circle, Triangle, Square);
+export const Shape = tb.union(Circle, RegularPolygon, Square);
 export type Shape = tb.TypeOf<typeof Shape>;
 
 export const Drawing = tb.object({

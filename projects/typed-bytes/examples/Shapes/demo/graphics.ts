@@ -57,20 +57,18 @@ export function regularPolygonContainsPoint(
     sides: number;
     center: shapes.Position;
     rotation: number;
-    sideLength: number;
+    radius: number;
   },
   point: shapes.Position,
 ) {
   const polygonPoints: shapes.Position[] = [];
 
-  const radius = polygon.sideLength / (2 * Math.sin(Math.PI / polygon.sides));
-
   for (let i = 0; i < polygon.sides; i++) {
     const angle = i * 2 * Math.PI / polygon.sides;
 
     polygonPoints.push({
-      x: polygon.center.x + radius * Math.sin(angle),
-      y: polygon.center.y - radius * Math.cos(angle),
+      x: polygon.center.x + polygon.radius * Math.sin(angle),
+      y: polygon.center.y - polygon.radius * Math.cos(angle),
     });
   }
 
