@@ -13,7 +13,18 @@ export default function render(drawing: shapes.Drawing) {
     for (let y = 0; y < drawing.canvas.height; y++) {
       const i = 4 * (y * drawing.canvas.width + x);
 
-      let color = drawing.canvas.background;
+      const checkerFlag = (Math.floor(x / 20) + Math.floor(y / 20)) % 2 === 0;
+
+      let color: shapes.Color = {
+        red: 128,
+        green: 128,
+        blue: 128,
+        alpha: checkerFlag ? 50 : 0,
+      };
+
+      if (drawing.canvas.background !== null) {
+        color = graphics.blend(color, drawing.canvas.background);
+      }
 
       for (const shape of drawing.shapes) {
         switch (shape.type) {
@@ -34,45 +45,23 @@ export default function render(drawing: shapes.Drawing) {
             break;
           }
 
-          case "regular-polygon": {
-            const sqDist = graphics.SqDist({ x, y }, shape.position);
-
-            if (sqDist >= shape.radius ** 2) {
-              break;
-            }
-
-            const containsPoint = graphics.regularPolygonContainsPoint(
+          case "triangle": {
+            const shapeColor = renderRegularPolygon(
               {
-                sides: shape.sides,
-                center: shape.position,
-                rotation: shape.rotation * Math.PI / 180,
-                radius: shape.radius,
+                type: "regular-polygon",
+                sides: 3,
+                position: shape.position,
+                radius: shape.sideLength / (2 * Math.sin(Math.PI / 3)),
+                rotation: shape.rotation,
+                outline: shape.outline && { ...shape.outline, thickness: 2 },
+                fill: shape.fill,
               },
-              { x, y },
+              x,
+              y,
             );
 
-            if (!containsPoint) {
-              break;
-            }
-
-            const computeInOutline = (thickness: number) =>
-              graphics.regularPolygonContainsPoint(
-                {
-                  sides: shape.sides,
-                  center: shape.position,
-                  rotation: shape.rotation * Math.PI / 180,
-                  radius: shape.radius - thickness,
-                },
-                { x, y },
-              );
-
-            if (
-              shape.outline !== null &&
-              !computeInOutline(shape.outline.thickness)
-            ) {
-              color = graphics.blend(color, shape.outline.color);
-            } else if (shape.fill !== null) {
-              color = graphics.blend(color, shape.fill);
+            if (shapeColor !== null) {
+              color = graphics.blend(color, shapeColor);
             }
 
             break;
@@ -106,6 +95,16 @@ export default function render(drawing: shapes.Drawing) {
             break;
           }
 
+          case "regular-polygon": {
+            const shapeColor = renderRegularPolygon(shape, x, y);
+
+            if (shapeColor !== null) {
+              color = graphics.blend(color, shapeColor);
+            }
+
+            break;
+          }
+
           default:
             never(shape);
         }
@@ -120,4 +119,50 @@ export default function render(drawing: shapes.Drawing) {
     height: drawing.canvas.height,
     data,
   });
+}
+
+function renderRegularPolygon(
+  shape: shapes.RegularPolygon,
+  x: number,
+  y: number,
+): shapes.Color | null {
+  const sqDist = graphics.SqDist({ x, y }, shape.position);
+
+  if (sqDist >= shape.radius ** 2) {
+    return null;
+  }
+
+  const containsPoint = graphics.regularPolygonContainsPoint(
+    {
+      sides: shape.sides,
+      center: shape.position,
+      rotation: shape.rotation * Math.PI / 180,
+      radius: shape.radius,
+    },
+    { x, y },
+  );
+
+  if (!containsPoint) {
+    return null;
+  }
+
+  const computeInOutline = (thickness: number) =>
+    graphics.regularPolygonContainsPoint(
+      {
+        sides: shape.sides,
+        center: shape.position,
+        rotation: shape.rotation * Math.PI / 180,
+        radius: shape.radius - thickness,
+      },
+      { x, y },
+    );
+
+  if (
+    shape.outline !== null &&
+    !computeInOutline(shape.outline.thickness)
+  ) {
+    return shape.outline.color;
+  }
+
+  return shape.fill;
 }

@@ -12,7 +12,7 @@ export type Color = tb.TypeOf<typeof Color>;
 export const Canvas = tb.object({
   width: tb.size,
   height: tb.size,
-  background: Color,
+  background: tb.optional(Color),
 });
 
 export type Canvas = tb.TypeOf<typeof Canvas>;
@@ -41,6 +41,16 @@ export const Circle = tb.object({
 
 export type Circle = tb.TypeOf<typeof Circle>;
 
+export const Triangle = tb.object({
+  type: tb.exact("triangle"),
+  position: Position,
+  sideLength: tb.size,
+  rotation: tb.isize,
+  ...outlineAndFill,
+});
+
+export type Triangle = tb.TypeOf<typeof Triangle>;
+
 export const RegularPolygon = tb.object({
   type: tb.exact("regular-polygon"),
   sides: tb.size,
@@ -62,7 +72,7 @@ export const Square = tb.object({
 
 export type Square = tb.TypeOf<typeof Square>;
 
-export const Shape = tb.union(Circle, RegularPolygon, Square);
+export const Shape = tb.union(Circle, Triangle, Square, RegularPolygon);
 export type Shape = tb.TypeOf<typeof Shape>;
 
 export const Drawing = tb.object({

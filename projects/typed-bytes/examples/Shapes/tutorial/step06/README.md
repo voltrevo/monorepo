@@ -30,6 +30,8 @@ thing:
 
 Ta da 🎉. That fixed the problem. Our square is now a square.
 
+![Drawing](./drawing.png)
+
 There's more though - the encoding didn't actually change. The `type` field
 takes up *zero space*. Why? Well, a `tb.exact` can only encode one thing, which
 means it represents zero information.

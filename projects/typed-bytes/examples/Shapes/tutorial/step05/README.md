@@ -107,4 +107,6 @@ encoding, but that's internal to the encoding, we told the decoder this is the
 structure we wanted. There's nothing stopping us from making decoders that
 produce ambiguous results.
 
+![Drawing](./drawing.png)
+
 ## [Step 6: Tell Shapes Apart](../step06)

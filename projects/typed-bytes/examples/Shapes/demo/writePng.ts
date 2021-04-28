@@ -4,68 +4,47 @@ import ensureType from "./helpers/ensureType.ts";
 
 const colors = ensureType<Record<string, shapes.Color>>()({
   black: { red: 0, green: 0, blue: 0, alpha: 255 },
+  white: { red: 255, green: 255, blue: 255, alpha: 255 },
   red: { red: 255, green: 0, blue: 0, alpha: 255 },
   green: { red: 0, green: 255, blue: 0, alpha: 255 },
   blue: { red: 0, green: 0, blue: 255, alpha: 255 },
   halfGrey: { red: 128, green: 128, blue: 128, alpha: 128 },
 });
 
+const outlineAndFill = {
+  outline: {
+    thickness: 1,
+    color: colors.green,
+  },
+  fill: null,
+};
+
 const drawing: shapes.Drawing = {
   canvas: {
     width: 1280,
     height: 720,
-    background: colors.halfGrey,
+    background: null,
   },
   shapes: [
     {
       type: "circle",
       position: { x: 640, y: 360 },
       radius: 100,
-      outline: {
-        thickness: 3,
-        color: colors.black,
-      },
-      fill: colors.red,
+      ...outlineAndFill,
     },
     {
-      type: "circle",
+      type: "triangle",
       position: { x: 640, y: 380 },
-      radius: 80,
-      outline: {
-        thickness: 3,
-        color: colors.black,
-      },
-      fill: colors.green,
-    },
-    {
-      type: "circle",
-      position: { x: 640, y: 460 },
-      radius: 60,
-      outline: null,
-      fill: { ...colors.blue, alpha: 128 },
+      sideLength: 100,
+      rotation: 30,
+      ...outlineAndFill,
     },
     {
       type: "square",
-      position: { x: 50, y: 50 },
-      sideLength: 50,
-      rotation: 5,
-      outline: {
-        thickness: 3,
-        color: colors.black,
-      },
-      fill: colors.blue,
-    },
-    {
-      type: "regular-polygon",
-      sides: 3,
-      position: { x: 800, y: 200 },
-      radius: 150,
-      rotation: 30,
-      outline: {
-        thickness: 3,
-        color: colors.black,
-      },
-      fill: colors.green,
+      position: { x: 640, y: 400 },
+      sideLength: 100,
+      rotation: 45,
+      ...outlineAndFill,
     },
   ],
 };
