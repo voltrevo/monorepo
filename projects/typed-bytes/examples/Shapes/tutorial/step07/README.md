@@ -1,7 +1,8 @@
 ## Step 7: Colors!
 
-Black outlines on a white background are pretty boring. Let's add `outline` and
-`fill` and get some colors happening.
+Green outlines on a transparent background are cool and all, but not as cool as
+pretty colors. Let's add `outline` and `fill` so shapes can have different
+colors.
 
 First, a definition of `Color`:
 
