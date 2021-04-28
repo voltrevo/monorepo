@@ -1,6 +1,6 @@
 # Typed Bytes
 
-*A binary encoding library for TypeScript.*
+*A public domain binary encoding library for TypeScript.*
 
 ## Hello World
 
