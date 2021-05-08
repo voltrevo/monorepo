@@ -90,11 +90,41 @@ can save it to disk, synchronize it with a remote display, or what-have-you.
 
 ... [keep reading](./examples/Shapes/README.md) ...
 
-## Why Use `typed-bytes` Instead Of...
+## Why Use typed-bytes Instead Of...
 
 ### MessagePack
 
-TODO
+1. typed-bytes is more compact:
+
+```ts
+const msg: LogMessage = {
+  type: 'INFO',
+  message: 'Test message',
+};
+
+msgpack.encode(msg);              // 33 bytes
+tb.encodeBuffer(LogMessage, msg); // 14 bytes
+```
+
+Of course, typed-bytes is relying on the type information to achieve this, and
+you need that information to decode the buffer. With MessagePack, you can decode
+the json in a different place with only the MessagePack library.
+
+2. MessagePack doesn't check the structure being decoded and doesn't provide
+type information:
+
+```ts
+// on hover:
+// const msgpackValue: unknown
+const msgpackValue = msgpack.decode(buffer);
+
+// on hover:
+// const tbValue: {
+//     level: "INFO" | "WARN" | "ERROR";
+//     message: string;
+// }
+const tbValue = tb.decodeBuffer(LogMessage, buffer);
+```
 
 ### Protocol Buffers
 
