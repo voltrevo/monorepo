@@ -195,6 +195,4 @@ const Transformer = tb.object({
 
 Whew! That was fun.
 
-## [Step 9: Making the House Smaller](../step09)
-## [Step 10: Lots of Houses!](../step10)
-## [Step 11: Shapes That Loop Into Themselves](../step11)
+## [Step 10: Shapes That Loop Into Themselves](../step10)

@@ -1,8 +1,131 @@
-import ensureType from "../helpers/ensureType.ts";
-import * as shapes from "../shapes.ts";
-import colors from "./colors.ts";
+import * as tb from "../../../../mod.ts";
 
-export default ensureType<shapes.Drawing>()({
+const Color = tb.object({
+  red: tb.byte,
+  green: tb.byte,
+  blue: tb.byte,
+  alpha: tb.byte,
+});
+
+const black = { red: 0, green: 0, blue: 0, alpha: 255 };
+const red = { red: 255, green: 0, blue: 0, alpha: 255 };
+const white = { red: 255, green: 255, blue: 255, alpha: 255 };
+
+const Canvas = tb.object({
+  width: tb.size,
+  height: tb.size,
+  background: tb.optional(Color),
+});
+
+const Position = tb.object({
+  x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
+  y: tb.isize,
+});
+
+type Position = tb.TypeOf<typeof Position>;
+
+const outlineAndFill = {
+  outline: tb.optional(tb.object({
+    color: Color,
+    thickness: tb.size,
+  })),
+  fill: tb.optional(Color),
+};
+
+const Circle = tb.object({
+  type: tb.exact("circle"),
+  position: Position,
+  radius: tb.size,
+  ...outlineAndFill,
+});
+
+type Circle = tb.TypeOf<typeof Circle>;
+
+const Triangle = tb.object({
+  type: tb.exact("triangle"),
+  position: Position,
+  sideLength: tb.size,
+  rotation: tb.isize,
+  ...outlineAndFill,
+});
+
+type Triangle = tb.TypeOf<typeof Triangle>;
+
+const Square = tb.object({
+  type: tb.exact("square"),
+  position: Position,
+  sideLength: tb.size,
+  rotation: tb.isize,
+  ...outlineAndFill,
+});
+
+type Square = tb.TypeOf<typeof Square>;
+
+const Reference = tb.string;
+type Reference = tb.TypeOf<typeof Reference>;
+
+type MetaShape = Shape[];
+
+type Transformer = {
+  type: "transformer";
+  origin: null | Position;
+  rotate: null | number;
+  scale: (
+    | null
+    | [number, number]
+    | { x: [number, number]; y: [number, number] }
+  );
+  shape: Shape;
+};
+
+type Shape = (
+  | Circle
+  | Triangle
+  | Square
+  | MetaShape
+  | Reference
+  | Transformer
+);
+
+const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
+
+const MetaShape = tb.array(ShapeReference);
+
+const Ratio = tb.tuple(tb.isize, tb.size);
+
+const Transformer = tb.object({
+  type: tb.exact("transformer"),
+  origin: tb.optional(Position),
+  rotate: tb.optional(tb.isize),
+  scale: tb.union(
+    tb.null_,
+    Ratio,
+    tb.object({
+      x: Ratio,
+      y: Ratio,
+    }),
+  ),
+  shape: ShapeReference,
+});
+
+const Shape = tb.union(
+  Circle,
+  Triangle,
+  Square,
+  MetaShape,
+  Reference,
+  Transformer,
+);
+
+const Drawing = tb.object({
+  canvas: Canvas,
+  registry: tb.stringMap(Shape),
+  shape: Shape,
+});
+
+type Drawing = tb.TypeOf<typeof Drawing>;
+
+const drawing: Drawing = {
   canvas: {
     width: 1280,
     height: 720,
@@ -18,9 +141,9 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
-        fill: colors.red,
+        fill: red,
       },
       {
         type: "square",
@@ -29,9 +152,9 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
-        fill: colors.red,
+        fill: red,
       },
 
       // I needed the outline so I'm using a third square to cover up the line in
@@ -42,7 +165,7 @@ export default ensureType<shapes.Drawing>()({
         sideLength: 22,
         rotation: 0,
         outline: null,
-        fill: colors.red,
+        fill: red,
       },
 
       // Handle
@@ -53,7 +176,7 @@ export default ensureType<shapes.Drawing>()({
         position: { x: -7, y: -22 },
         radius: 2,
         outline: null,
-        fill: colors.black,
+        fill: black,
       },
     ],
     houseFrame: [
@@ -65,7 +188,7 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 3,
-          color: colors.black,
+          color: black,
         },
         fill: { red: 255, green: 255, blue: 0, alpha: 255 },
       },
@@ -77,7 +200,7 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 3,
-          color: colors.black,
+          color: black,
         },
         fill: { red: 255, green: 180, blue: 50, alpha: 255 },
       },
@@ -90,9 +213,9 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
-        fill: colors.white,
+        fill: white,
       },
       {
         type: "square",
@@ -101,9 +224,9 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
-        fill: colors.white,
+        fill: white,
       },
       {
         type: "square",
@@ -112,9 +235,9 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
-        fill: colors.white,
+        fill: white,
       },
     ],
     windowPair: [
@@ -142,7 +265,7 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
         fill: { red: 100, green: 50, blue: 0, alpha: 255 },
       },
@@ -153,7 +276,7 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
         fill: { red: 100, green: 50, blue: 0, alpha: 255 },
       },
@@ -164,7 +287,7 @@ export default ensureType<shapes.Drawing>()({
         rotation: 0,
         outline: {
           thickness: 1,
-          color: colors.black,
+          color: black,
         },
         fill: { red: 100, green: 50, blue: 0, alpha: 255 },
       },
@@ -216,9 +339,7 @@ export default ensureType<shapes.Drawing>()({
       },
       "smoke",
     ],
-  },
-  shape: [
-    {
+    sky: {
       type: "square",
       position: { x: 640, y: 360 },
       sideLength: 2000,
@@ -226,14 +347,7 @@ export default ensureType<shapes.Drawing>()({
       outline: null,
       fill: { red: 100, green: 150, blue: 255, alpha: 255 },
     },
-    {
-      type: "transformer",
-      origin: { x: 640 + 150, y: 462 },
-      rotate: 5,
-      scale: null,
-      shape: "house",
-    },
-    {
+    grass: {
       type: "square",
       position: { x: 640, y: 1458 },
       sideLength: 2000,
@@ -241,6 +355,17 @@ export default ensureType<shapes.Drawing>()({
       outline: null,
       fill: { red: 100, green: 255, blue: 150, alpha: 255 },
     },
+  },
+  shape: [
+    "sky",
+    {
+      type: "transformer",
+      origin: { x: 640 + 150, y: 462 },
+      rotate: 5,
+      scale: null,
+      shape: "house",
+    },
+    "grass",
     {
       type: "transformer",
       origin: { x: 640 - 2 * 150, y: 460 },
@@ -270,4 +395,6 @@ export default ensureType<shapes.Drawing>()({
       shape: "house",
     },
   ],
-});
+};
+
+console.log(new Uint8Array(tb.encodeBuffer(Drawing, drawing)));
