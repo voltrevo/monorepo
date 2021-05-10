@@ -52,4 +52,4 @@ encode negatives.
 
 ![Drawing](./drawing.png)
 
-## [Step 5: More Shapes](../step05)
+## [Step 5: More Shapes](../step05/README.md)

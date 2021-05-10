@@ -195,4 +195,4 @@ const Transformer = tb.object({
 
 Whew! That was fun.
 
-## [Step 10: Shapes That Loop Into Themselves](../step10)
+## [Step 10: Shapes That Loop Into Themselves](../step10/README.md)

@@ -82,13 +82,17 @@ console.log(new Uint8Array(buffer));
 const decodedValue = decode(buffer);
 ```
 
-## A More Complex Example
+## [A More Complex Example](./examples/Shapes/README.md)
 
 Suppose we were making graphics application where the user can draw shapes on a
 canvas. We want to be able to be able to encode the canvas and its shapes so we
 can save it to disk, synchronize it with a remote display, or what-have-you.
 
-... [keep reading](./examples/Shapes/README.md) ...
+![Snake](./examples/Shapes/tutorial/step10/drawing.png)
+
+The image above is encoded in just 71 bytes.
+[Keep reading](./examples/Shapes/README.md) for a step-by-step guide to create a
+vector graphics format to achieve this using `typed-bytes`.
 
 ## Why Use typed-bytes Instead Of...
 

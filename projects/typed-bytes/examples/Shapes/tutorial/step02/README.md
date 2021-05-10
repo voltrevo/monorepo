@@ -18,4 +18,4 @@ based, so we're happy with whole numbers. We can replace `tb.number` with
 
 Just four bytes! Now we're talking.
 
-## [Step 3: Add a Circle](../step03)
+## [Step 3: Add a Circle](../step03/README.md)

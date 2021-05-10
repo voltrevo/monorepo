@@ -64,4 +64,4 @@ Now we can add `outline` and `fill` to our shapes:
 |          TODO | .svg   |
 |           113 | .shape |
 
-## [Step 8: Meta Shapes](../step08)
+## [Step 8: Meta Shapes](../step08/README.md)

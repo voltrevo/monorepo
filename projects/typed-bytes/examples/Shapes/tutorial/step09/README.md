@@ -93,4 +93,4 @@ Ta da:
 
 515 bytes.
 
-## [Step 10: Shapes That Loop Into Themselves](../step10)
+## [Step 10: Shapes That Loop Into Themselves](../step10/README.md)

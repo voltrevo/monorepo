@@ -16,4 +16,4 @@ console.log(new Uint8Array(buffer)); /*
 */
 ```
 
-## [Step 2: Use `size` for Size](../step02)
+## [Step 2: Use `size` for Size](../step02/README.md)

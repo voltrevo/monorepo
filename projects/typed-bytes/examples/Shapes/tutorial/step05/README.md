@@ -109,4 +109,4 @@ produce ambiguous results.
 
 ![Drawing](./drawing.png)
 
-## [Step 6: Tell Shapes Apart](../step06)
+## [Step 6: Tell Shapes Apart](../step06/README.md)

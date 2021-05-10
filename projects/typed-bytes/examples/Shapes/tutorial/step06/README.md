@@ -60,4 +60,4 @@ console.log(
 // hello
 ```
 
-## [Step 7: Colors!](../step07)
+## [Step 7: Colors!](../step07/README.md)
