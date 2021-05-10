@@ -52,6 +52,6 @@ const drawing: shapes.Drawing = {
   },
 };
 
-// await Deno.writeFile("./drawing.png", render(drawing));
+await Deno.writeFile("./drawing.png", render(drawing));
 
-console.log(new Uint8Array(tb.encodeBuffer(shapes.Drawing, drawing)));
+console.log(tb.encodeBuffer(shapes.Drawing, drawing).byteLength, "bytes");
