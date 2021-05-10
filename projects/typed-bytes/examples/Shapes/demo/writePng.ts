@@ -1,7 +1,7 @@
 import * as tb from "../../../mod.ts";
 
 import render from "./render.ts";
-import drawing from "./drawings/step09.ts";
+import drawing from "./drawings/step10_2.ts";
 import * as shapes from "./shapes.ts";
 
 await Deno.writeFile("./drawing.png", render(drawing));

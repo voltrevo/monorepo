@@ -16,17 +16,17 @@ export default ensureType<shapes.Drawing>()({
         {
           type: "square",
           position: { x: 0, y: 0 },
-          sideLength: 100,
+          sideLength: 200,
           rotation: 0,
           outline: {
             thickness: 5,
             color: colors.black,
           },
-          fill: colors.white,
+          fill: colors.cyan,
         },
         {
           type: "transformer",
-          origin: { x: 0, y: 100 },
+          origin: { x: 0, y: 200 },
           rotate: 45,
           scale: [4, 5],
           shape: "fractal",
@@ -36,7 +36,7 @@ export default ensureType<shapes.Drawing>()({
   },
   shape: {
     type: "transformer",
-    origin: { x: 640, y: 360 },
+    origin: { x: 740, y: 260 },
     rotate: null,
     scale: null,
     shape: "fractal",

@@ -104,17 +104,17 @@ Now we can redefine our drawing like so:
          {
            type: "square",
            position: { x: 0, y: 0 },
-           sideLength: 100,
+           sideLength: 200,
            rotation: 0,
            outline: {
              thickness: 5,
              color: black,
            },
-           fill: white,
+           fill: cyan,
          },
          {
            type: "transformer",
-           origin: { x: 0, y: 100 },
+           origin: { x: 0, y: 200 },
            rotate: 45,
            scale: [4, 5],
 -          shape: "fractal", // <--- fractal draws itself again here
@@ -127,4 +127,8 @@ Now we can redefine our drawing like so:
 +  },
 ```
 
-## [Step 10: Shapes That Loop Into Themselves](../step10)
+[Source](./step10_1.ts)
+
+![Drawing](./drawing.png)
+
+71 bytes.

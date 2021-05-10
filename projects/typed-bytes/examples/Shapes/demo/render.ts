@@ -6,11 +6,13 @@ import * as graphics from "./graphics.ts";
 
 type RenderContext = {
   inProgress: Set<string>;
+  recursionDepths: Map<unknown, number>;
 };
 
 function RenderContext(): RenderContext {
   return {
     inProgress: new Set<string>(),
+    recursionDepths: new Map(),
   };
 }
 
@@ -206,7 +208,27 @@ function renderShape(
     }
 
     case "recursive": {
-      throw new Error("Not implemented");
+      const currentDepth = rc.recursionDepths.get(shape) ?? 0;
+
+      if (currentDepth >= shape.depth) {
+        return null;
+      }
+
+      return renderShape(
+        {
+          ...rc,
+          inProgress: new Set(),
+          recursionDepths: (() => {
+            const result = new Map(rc.recursionDepths);
+            result.set(shape, currentDepth + 1);
+
+            return result;
+          })(),
+        },
+        drawing,
+        shape.shape,
+        position,
+      );
     }
 
     default:

@@ -8,4 +8,5 @@ export default ensureType<Record<string, shapes.Color>>()({
   green: { red: 0, green: 255, blue: 0, alpha: 255 },
   blue: { red: 0, green: 0, blue: 255, alpha: 255 },
   halfGrey: { red: 128, green: 128, blue: 128, alpha: 128 },
+  cyan: { red: 0, green: 255, blue: 255, alpha: 255 },
 });

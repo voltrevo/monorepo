@@ -8,8 +8,7 @@ const Color = tb.object({
 });
 
 const black = { red: 0, green: 0, blue: 0, alpha: 255 };
-const red = { red: 255, green: 0, blue: 0, alpha: 255 };
-const white = { red: 255, green: 255, blue: 255, alpha: 255 };
+const cyan = { red: 0, green: 255, blue: 255, alpha: 255 };
 
 const Canvas = tb.object({
   width: tb.size,
@@ -153,17 +152,17 @@ const drawing: Drawing = {
         {
           type: "square",
           position: { x: 0, y: 0 },
-          sideLength: 100,
+          sideLength: 200,
           rotation: 0,
           outline: {
             thickness: 5,
             color: black,
           },
-          fill: white,
+          fill: cyan,
         },
         {
           type: "transformer",
-          origin: { x: 0, y: 100 },
+          origin: { x: 0, y: 200 },
           rotate: 45,
           scale: [4, 5],
           shape: "fractal",
@@ -173,7 +172,7 @@ const drawing: Drawing = {
   },
   shape: {
     type: "transformer",
-    origin: { x: 640, y: 360 },
+    origin: { x: 740, y: 260 },
     rotate: null,
     scale: null,
     shape: "fractal",
