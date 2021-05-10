@@ -89,6 +89,12 @@ export type Transformer = {
   shape: Shape;
 };
 
+type Recursive = {
+  type: "recursive";
+  depth: number;
+  shape: Shape;
+};
+
 export type Shape = (
   | Circle
   | Triangle
@@ -97,6 +103,7 @@ export type Shape = (
   | MetaShape
   | Reference
   | Transformer
+  | Recursive
 );
 
 export const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
@@ -120,6 +127,12 @@ export const Transformer = tb.object({
   shape: ShapeReference,
 });
 
+const Recursive = tb.object({
+  type: tb.exact("recursive"),
+  depth: tb.size,
+  shape: ShapeReference,
+});
+
 export const Shape = tb.union(
   Circle,
   Triangle,
@@ -128,6 +141,7 @@ export const Shape = tb.union(
   MetaShape,
   Reference,
   Transformer,
+  Recursive,
 );
 
 export const Drawing = tb.object({

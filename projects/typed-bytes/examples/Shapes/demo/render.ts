@@ -4,6 +4,16 @@ import never from "./helpers/never.ts";
 import * as shapes from "./shapes.ts";
 import * as graphics from "./graphics.ts";
 
+type RenderContext = {
+  inProgress: Set<string>;
+};
+
+function RenderContext(): RenderContext {
+  return {
+    inProgress: new Set<string>(),
+  };
+}
+
 export default function render(drawing: shapes.Drawing) {
   const rawSize = 4 * drawing.canvas.width * drawing.canvas.height;
   const data = new Uint8Array(rawSize);
@@ -28,7 +38,7 @@ export default function render(drawing: shapes.Drawing) {
 
       color = graphics.blend(
         color,
-        renderShape(drawing, drawing.shape, { x, y }),
+        renderShape(RenderContext(), drawing, drawing.shape, { x, y }),
       );
 
       if (color !== null) {
@@ -45,6 +55,7 @@ export default function render(drawing: shapes.Drawing) {
 }
 
 function renderShape(
+  rc: RenderContext,
   drawing: shapes.Drawing,
   shape: shapes.Shape,
   position: shapes.Position,
@@ -52,6 +63,10 @@ function renderShape(
   const { x, y } = position;
 
   if (typeof shape === "string") {
+    if (rc.inProgress.has(shape)) {
+      throw new Error(`Shape "${shape}" is not allowed to draw itself`);
+    }
+
     const registeredShape = drawing.registry[shape];
 
     if (registeredShape === undefined) {
@@ -59,14 +74,27 @@ function renderShape(
       return null;
     }
 
-    return renderShape(drawing, registeredShape, position);
+    return renderShape(
+      {
+        ...rc,
+        inProgress: (() => {
+          const result = new Set(rc.inProgress);
+          result.add(shape);
+
+          return result;
+        })(),
+      },
+      drawing,
+      registeredShape,
+      position,
+    );
   }
 
   if (Array.isArray(shape)) {
     let color: shapes.Color | null = null;
 
     for (const s of shape) {
-      color = graphics.blend(color, renderShape(drawing, s, position));
+      color = graphics.blend(color, renderShape(rc, drawing, s, position));
     }
 
     return color;
@@ -174,7 +202,11 @@ function renderShape(
         }
       }
 
-      return renderShape(drawing, shape.shape, newPosition);
+      return renderShape(rc, drawing, shape.shape, newPosition);
+    }
+
+    case "recursive": {
+      throw new Error("Not implemented");
     }
 
     default:
