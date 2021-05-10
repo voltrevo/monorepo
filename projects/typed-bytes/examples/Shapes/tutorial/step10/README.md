@@ -28,7 +28,7 @@ const drawing: Drawing = {
         origin: { x: 0, y: 100 },
         rotate: 45,
         scale: [4, 5],
-        shape: "fractal",
+        shape: "fractal", // <--- fractal draws itself again here
       },
     ],
   },
@@ -117,7 +117,10 @@ Now we can redefine our drawing like so:
            origin: { x: 0, y: 100 },
            rotate: 45,
            scale: [4, 5],
-           shape: "fractal",
+-          shape: "fractal", // <--- fractal draws itself again here
++          shape: "fractal", // <--- fractal draws itself as before but this
++                            //      time there's a "recursive" wrapper that
++                            //      lets the renderer know not to go on forever
          },
        ],
      },
