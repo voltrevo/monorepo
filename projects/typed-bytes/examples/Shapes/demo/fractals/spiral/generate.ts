@@ -1,8 +1,10 @@
-import ensureType from "../helpers/ensureType.ts";
-import * as shapes from "../shapes.ts";
-import colors from "./colors.ts";
+import * as tb from "../../../../../mod.ts";
 
-export default ensureType<shapes.Drawing>()({
+import * as shapes from "../../shapes.ts";
+import colors from "../../drawings/colors.ts";
+import render from "../../render.ts";
+
+const drawing: shapes.Drawing = {
   canvas: {
     width: 1280,
     height: 720,
@@ -33,7 +35,7 @@ export default ensureType<shapes.Drawing>()({
         },
         {
           type: "transformer",
-          origin: { x: 0, y: 0 },
+          origin: null,
           rotate: 20,
           scale: [46, 57],
           shape: "fractal",
@@ -48,4 +50,8 @@ export default ensureType<shapes.Drawing>()({
     scale: null,
     shape: "fractal",
   },
-});
+};
+
+// await Deno.writeFile("./drawing.png", render(drawing));
+
+console.log(new Uint8Array(tb.encodeBuffer(shapes.Drawing, drawing)));

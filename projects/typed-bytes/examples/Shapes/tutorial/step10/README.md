@@ -56,7 +56,7 @@ up getting drawn outside the canvas).
 Instead, we'll solve this by adding a new shape allowing us to recurse with an
 explicit depth limit. This way we can also forbid recursion that doesn't make
 use of this tool, so we don't accidentally create a drawing that can never
-finish drawing.
+finish rendering.
 
 ```diff
 +type Recursive = {
@@ -127,8 +127,21 @@ Now we can redefine our drawing like so:
 +  },
 ```
 
-[Source](./step10_1.ts)
+[Source](./step10_2.ts)
 
 ![Drawing](./drawing.png)
 
 71 bytes.
+
+[More fractals.](../../demo/fractals/README.md)
+
+This concludes the shapes tutorial. If you'd like to see how these drawings have
+been rendered, check out [writePng.ts](../../demo/writePng.ts).
+
+(By the way, I've had a lot of fun implementing the rendering for this format,
+but I've had my hands full just explaining the encoding for the tutorial. The
+rendering is also very inefficient 😄.
+
+If you'd like to make a companion tutorial explaining (and/or improving) the
+rendering side, that would be a great addition here. Please see
+[CONTRIBUTING.md](../../../../CONTRIBUTING.md).)
