@@ -6,6 +6,7 @@
 
 Prerequisites:
 - nodejs
+- flatc (e.g. `sudo apt install flatbuffers-compiler`)
 
 ```sh
 npm install

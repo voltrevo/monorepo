@@ -4,16 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "copy-flatbuffers": "rm -rf flatbuffers && cp -a node_modules/flatbuffers/ts flatbuffers && mv flatbuffers/flatbuffers.ts flatbuffers/index.ts",
     "code-gen": "flatc --ts LogMessage.fbs",
-    "build": "npm run copy-flatbuffers && npm run code-gen && tsc",
+    "build": "npm run code-gen && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "Unlicense",
   "dependencies": {
+    "@types/flatbuffers": "^1.10.0",
     "@types/node": "^15.0.2",
-    "avsc": "^5.7.0",
+    "flatbuffers": "^1.12.0",
     "typescript": "^4.2.4"
   }
 }

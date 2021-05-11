@@ -6,5 +6,3 @@ table LogMessage {
   level: Level;
   message: string;
 }
- 
-root_type LogMessage;
