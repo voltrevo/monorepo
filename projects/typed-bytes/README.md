@@ -384,7 +384,7 @@ clear enough that Cap'n Proto is not currently suitable for use with TypeScript.
 ### FlatBuffers
 
 <details>
-<summary>Codegen, strange API, non-js dependencies, click for more</summary>
+<summary>Code-gen, strange API, non-js dependencies, click for more</summary>
 
 [FlatBuffers mini-project containing these examples.](./comparisons/flatbuffers/README.md)
 
@@ -405,8 +405,8 @@ table LogMessage {
 }
 ```
 
-2. Requires codegen.
-3. Codegen requires non-js dependency `flatc`.
+2. Requires code-gen.
+3. Code-gen requires non-js dependency `flatc`.
 
 On Ubuntu 20.04 I was able to install using:
 
