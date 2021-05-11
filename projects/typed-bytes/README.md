@@ -242,7 +242,7 @@ message LogMessages {
 ### Avro
 
 <details>
-<summary>Code-gen, TypeScript is unofficial</summary>
+<summary>Verbose, TypeScript is unofficial, no type information</summary>
 
 Note: avro doesn't have any official support for JavaScript or TypeScript. The
 best unofficial library appears to be [avsc](https://github.com/mtth/avsc), and
