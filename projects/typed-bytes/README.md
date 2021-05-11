@@ -235,14 +235,92 @@ message LogMessages {
   repeated LogMessage content = 1;
 }
 ```
+
+[Protobuf mini-project containing these examples.](./comparisons/protobuf/README.md).
 </details>
 
 ### Avro
 
 <details>
-<summary>TODO</summary>
+<summary>Code-gen, TypeScript is unofficial</summary>
 
-1. TODO
+Note: avro doesn't have any official support for JavaScript or TypeScript. The
+best unofficial library appears to be [avsc](https://github.com/mtth/avsc), and
+this is being used for comparison here.
+
+1. avsc's first example from
+[their README.md](https://github.com/mtth/avsc/blob/master/README.md) is
+rejected by the TypeScript compiler.
+
+```ts
+import avro from 'avsc';
+
+/*
+Argument of type '{ type: "record"; fields: ({ name: string; type: { type: "enum"; symbols: string[]; }; } | { name: string; type: string; })[]; }' is not assignable to parameter of type 'Schema'.
+  Type '{ type: "record"; fields: ({ name: string; type: { type: "enum"; symbols: string[]; }; } | { name: string; type: string; })[]; }' is not assignable to type 'string'. ts(2345)
+*/
+const type = avro.Type.forSchema({
+  type: 'record',
+  fields: [
+    {name: 'kind', type: {type: 'enum', symbols: ['CAT', 'DOG']}},
+    {name: 'name', type: 'string'}
+  ]
+});
+```
+
+On troubleshooting this I discovered the `name` field is required, so you can
+fix the example above by adding that field at the top level and also in the
+embedded enum type.
+
+2. Schemas are much more verbose than `typed-bytes`:
+
+```ts
+// avsc
+const LogMessage = avro.Type.forSchema({
+  name: 'LogMessage',
+  type: 'record',
+  fields: [
+    {
+      name: 'level',
+      type: {
+        type: 'enum',
+        name: 'Level',
+        symbols: ['INFO', 'WARN', 'ERROR'],
+      },
+    },
+    { name: 'message', type: 'string' },
+  ],
+});
+```
+
+```ts
+// typed-bytes
+const LogMessage = tb.object({
+  level: tb.enum_("INFO", "WARN", "ERROR"),
+  message: tb.string,
+});
+```
+
+3. Type information is not available to the TypeScript compiler (or your IDE):
+
+```ts
+// `.toBuffer` below is typed as:
+// (method) Type.toBuffer(value: any): any
+const buf = LogMessage.toBuffer({
+  level: 'INFO',
+  message: 'Test message',
+});
+```
+
+This also means if you want a TypeScript definition of this object, you'll need
+to define it redundantly, and TypeScript can't protect you from that redundant
+type getting out of sync with your avro schema.
+
+By comparison, in typed-bytes, you can write:
+
+```ts
+type LogMessage = tb.TypeOf<typeof LogMessage>;
+```
 </details>
 
 ### Cap'n Proto

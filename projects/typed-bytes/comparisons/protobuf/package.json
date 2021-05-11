@@ -1,5 +1,5 @@
 {
-  "name": "protobuf-test",
+  "name": "protobuf-comparison",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -10,9 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "private": true,
   "dependencies": {
     "protobufjs": "^6.11.2",
     "typescript": "^4.2.4"
-  }
+  },
+  "license": "Unlicense"
 }
