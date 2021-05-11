@@ -99,9 +99,65 @@ vector graphics format to achieve this using `typed-bytes`.
 ### JSON
 
 <details>
-<summary>TODO, click for more</summary>
+<summary>Less compact, no type information, click for more</summary>
 
-1. TODO
+1. typed-bytes is more compact:
+
+```ts
+const msg: LogMessage = {
+  type: 'INFO',
+  message: 'Test message',
+};
+
+new TextEncoder().encode(JSON.stringify(msg)); // 40 bytes
+tb.encodeBuffer(LogMessage, msg);              // 14 bytes
+```
+
+Of course, typed-bytes is relying on the type information to achieve this, and
+you need that information to decode the buffer. With JSON, you can decode it in
+a different place with just `JSON.parse`.
+
+2. `JSON.parse` doesn't check the structure being decoded and doesn't provide
+type information:
+
+```ts
+// on hover:
+// const jsonValue: any
+const jsonValue = JSON.parse('{"type":"INFO","message":"Test message"}');
+
+// on hover:
+// const tbValue: {
+//     level: "INFO" | "WARN" | "ERROR";
+//     message: string;
+// }
+const tbValue = tb.decodeBuffer(LogMessage, buffer);
+```
+
+If you still really like JSON for its human readable format, and you like JSON's
+API, you might still be interested in using `typed-bytes` for its type
+information. I have included `tb.JSON` to mirror the `JSON` api like so:
+
+```ts
+// on hover:
+// const typedValue: {
+//     level: "INFO" | "WARN" | "ERROR";
+//     message: string;
+// }
+const typedValue = tb.JSON.parse(
+  LogMessage,
+  '{"type":"INFO","message":"Test message"}',
+);
+// (This will also throw if the json is not a valid LogMessage.)
+
+const jsonString = tb.JSON.stringify(LogMessage, {
+  // These fields are type checked against `LogMessage`
+  level: 'INFO',
+  message: 'Test message',
+});
+```
+
+(If you're not interested in type information, then I'm not sure why you're here
+😄.)
 </details>
 
 ### MessagePack

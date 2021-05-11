@@ -1,5 +1,6 @@
 import type { Bicoder, Decoder, Encoder } from "./types.ts";
 import BufferStream from "./BufferStream.ts";
+import jsonGlobal from "./jsonGlobal.ts";
 
 export function encodeBuffer<T>(encoder: Encoder<T>, value: T): ArrayBuffer {
   const stream = new BufferStream();
@@ -30,3 +31,18 @@ export function BufferBicoder<T>(bicoder: Bicoder<T>): BufferBicoder<T> {
     },
   };
 }
+
+export const JSON = {
+  stringify: <T>(_bicoder: Bicoder<T>, value: T): string => (
+    jsonGlobal.stringify(value)
+  ),
+  parse: <T>(bicoder: Bicoder<T>, jsonString: string): T => {
+    const parsed = jsonGlobal.parse(jsonString);
+
+    if (!bicoder.test(parsed)) {
+      throw new Error("JSON does not match type");
+    }
+
+    return parsed;
+  },
+};
