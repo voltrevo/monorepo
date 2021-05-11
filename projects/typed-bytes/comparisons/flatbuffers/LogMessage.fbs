@@ -1,0 +1,10 @@
+namespace Sample;
+
+enum Level: byte { INFO = 0, WARN = 1, ERROR = 2 }
+
+table LogMessage {
+  level: Level;
+  message: string;
+}
+ 
+root_type LogMessage;
