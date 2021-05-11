@@ -142,8 +142,6 @@ type Reference = tb.TypeOf<typeof Reference>;
 +const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
 ```
 
-**TODO**: Deal with circular references (embrace them and make fractals!)
-
 For transformer though, we need to interact with the circular machinery again:
 
 ```diff
