@@ -406,6 +406,11 @@ table LogMessage {
 ```
 
 2. Requires code-gen.
+
+```sh
+flatc --ts LogMessage.fbs
+```
+
 3. Code-gen requires non-js dependency `flatc`.
 
 On Ubuntu 20.04 I was able to install using:
