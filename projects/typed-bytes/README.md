@@ -84,15 +84,42 @@ const decodedValue = decode(buffer);
 
 ## [A More Complex Example](./examples/Shapes/README.md)
 
-Suppose we were making a graphics application where the user can draw shapes on a
-canvas. We want to be able to be able to encode the canvas and its shapes so we
-can save it to disk, synchronize it with a remote display, or what-have-you.
+Suppose we were making a graphics application where the user can draw shapes on
+a canvas. We want to be able to be able to encode the canvas and its shapes so
+we can save it to disk, synchronize it with a remote display, or what-have-you.
 
 ![Snake](./examples/Shapes/tutorial/step10/drawing.png)
 
 The image above is encoded in just 71 bytes.
 [Keep reading](./examples/Shapes/README.md) for a step-by-step guide to create a
 vector graphics format to achieve this using `typed-bytes`.
+
+## Status
+
+`typed-bytes` isn't ready to offer a stable API.
+
+Having said that, I believe it's very usable in its current form by pinning the
+version. It's also only ~500 sloc, so if you have problems upgrading you have
+the option of staying on your own fork.
+
+## Plans
+
+- Support for omitting fields instead of optionals needing to be present with
+`null`/`undefined`
+- Better support for sparse objects / condense union options at the object
+level so that a whole byte isn't needed for each union option
+- Optionally including some header bytes representing a digest of the type
+information
+- Performance testing and tuning
+- Tools for aligning with existing encodings
+- Advice about versioning and compatibility when using `typed-bytes`
+- Better support for user defined types (e.g. include classes)
+- Async support
+- Adaptors for files/sockets/etc
+- RPC
+- Optional code-gen for boosting performance and supporting other languages
+- Incorporate pointers to support file format enabling incremental changes to
+large data structures
 
 ## Why Use typed-bytes Instead Of...
 
