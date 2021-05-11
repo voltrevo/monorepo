@@ -326,9 +326,48 @@ type LogMessage = tb.TypeOf<typeof LogMessage>;
 ### Cap'n Proto
 
 <details>
-<summary>TODO</summary>
+<summary>Lack of support, slow, hacky</summary>
 
-1. TODO
+To be clear, we are talking about using Cap'n Proto from TypeScript here. If you
+are not using TypeScript these comparisons do not apply.
+
+1. Library describes itself as slow.
+
+> Because v8 cannot inline or otherwise optimize calls into C++ code, and because the C++ bindings are implemented in terms of the "dynamic" API, this implementation is actually very slow.
+
+[node-capnp docs](https://github.com/capnproto/node-capnp#this-implementation-is-slow)
+
+2. Library describes itself as hacky.
+
+> This package is a hacky wrapper around the Cap'n Proto C++ library.
+
+[node-capnp docs](https://github.com/capnproto/node-capnp#capn-proto-bindings-for-nodejs)
+
+3. Cap'n Proto requires that you install it at the system level.
+
+Simply running `npm install capnp` does not work:
+
+```
+// lots of noise
+npm ERR! ../src/node-capnp/capnp.cc:31:10: fatal error: capnp/dynamic.h: No such file or directory
+npm ERR!    31 | #include <capnp/dynamic.h>
+// lots more noise
+```
+
+[As commented by a `node-capnp` member](https://github.com/capnproto/node-capnp/issues/41#issuecomment-388421409),
+this is a requirement.
+
+4. After installing at the system level, `npm install capnp` still does not
+work.
+
+I'm running nodejs 16.1.0 on ubuntu 20.04, and I was able to install Cap'n Proto
+on my system to fufil the requirement above just fine with
+`sudo apt install capnproto`. However, `npm install capnp` continues to fail
+with the same error.
+
+I'd like to expand on the Cap'n Proto comparison, but for now I think it is
+clear enough that Cap'n Proto is not currently suitable for use with TypeScript.
+[Contributions welcome](./CONTRIBUTING.md).
 </details>
 
 ### Flat Buffers
