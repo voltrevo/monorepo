@@ -121,6 +121,10 @@ information
 - Incorporate pointers to support file format enabling incremental changes to
 large data structures
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Why Use typed-bytes Instead Of...
 
 ### JSON
