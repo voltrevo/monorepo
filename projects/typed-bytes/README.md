@@ -242,7 +242,8 @@ message LogMessages {
 ### Avro
 
 <details>
-<summary>Verbose, TypeScript is unofficial, no type information</summary>
+<summary>Verbose, TypeScript is unofficial, no type information, click for
+more</summary>
 
 Note: avro doesn't have any official support for JavaScript or TypeScript. The
 best unofficial library appears to be [avsc](https://github.com/mtth/avsc), and
@@ -326,7 +327,7 @@ type LogMessage = tb.TypeOf<typeof LogMessage>;
 ### Cap'n Proto
 
 <details>
-<summary>Lack of support, slow, hacky</summary>
+<summary>Lack of support, slow, hacky, click for more</summary>
 
 To be clear, we are talking about using Cap'n Proto from TypeScript here. If you
 are not using TypeScript these comparisons do not apply.
@@ -373,7 +374,7 @@ clear enough that Cap'n Proto is not currently suitable for use with TypeScript.
 ### Flat Buffers
 
 <details>
-<summary>TODO</summary>
+<summary>TODO, click for more</summary>
 
 1. TODO
 </details>
