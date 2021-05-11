@@ -10,3 +10,7 @@ message LogMessage {
   Level level = 1;
   string message = 2;
 }
+
+message LogMessages {
+  repeated LogMessage content = 1;
+}

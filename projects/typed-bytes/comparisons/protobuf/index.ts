@@ -1,10 +1,10 @@
-import { LogMessage } from './messages';
+import { LogMessage } from "./messages";
 
 // More verbose: special protobuf object instead of vanilla object
 const msg = new LogMessage({
   // More verbose: enum wrapper instead of vanilla string
-  level: LogMessage.Level['INFO'],
-  message: 'Test message',
+  level: LogMessage.Level["INFO"],
+  message: "Test message",
 });
 
 const buf = LogMessage.encode(msg).finish();
@@ -38,4 +38,16 @@ console.log(decodedJSON); /*
     level: 'INFO',
     message: 'Test message',
   }
+*/
+
+const emptyMessage = LogMessage.decode(
+  LogMessage.encode(new LogMessage()).finish(),
+);
+
+console.log(JSON.stringify(emptyMessage.message)); /*
+  ""
+*/
+
+console.log(emptyMessage.toJSON()); /*
+  {}
 */

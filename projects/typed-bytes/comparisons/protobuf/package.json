@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build-proto-js": "pbjs messages.proto -t static-module -o messages.js",
-    "build-proto-ts": "./node_modules/.bin/pbts messages.js -o messages.d.ts",
+    "build-proto-ts": "pbts messages.js -o messages.d.ts",
     "build": "npm run build-proto-js && npm run build-proto-ts && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

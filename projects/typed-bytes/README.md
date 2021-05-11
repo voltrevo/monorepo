@@ -132,7 +132,102 @@ const tbValue = tb.decodeBuffer(LogMessage, buffer);
 
 ### Protocol Buffers
 
-TODO
+1. Requires learning a special-purpose `.proto` language (can be a positive *if* you need to
+share a protocol with a team that doesn't want to interact with TypeScript)
+
+```proto
+// messages.proto
+
+syntax = "proto3";
+
+message LogMessage {
+  enum Level {
+    INFO = 1;
+    WARN = 2;
+    ERROR = 3;
+  }
+
+  Level level = 1;
+  string message = 2;
+}
+```
+
+2. Requires code-gen:
+
+```sh
+pbjs messages.proto -t static-module -o messages.js
+pbts messages.js -o messages.d.ts
+```
+
+3. Protobuf requires you to use its wrappers around your objects which is more verbose:
+
+```ts
+// More verbose: special protobuf object instead of vanilla object
+const msg = new LogMessage({
+  // More verbose: enum wrapper instead of vanilla string
+  level: LogMessage.Level['INFO'],
+  message: 'Test message',
+});
+```
+
+4. Assuming you want to use protobuf version 3 (as opposed to version 2 which was superseded by version 3 five years ago), protobuf forces all fields to be optional.
+
+TypeScript cannot tell you when you have forgotten a field:
+
+```ts
+const msg = new LogMessage({
+  // Forgot `level`, but this compiles just fine
+  message: 'Test message',
+});
+```
+
+Protobuf is inconsistent about how it represents missing fields:
+
+```ts
+const emptyMessage = LogMessage.decode(
+  LogMessage.encode(new LogMessage()).finish(),
+);
+```
+
+If you use protobuf's wrapped object (and likely other contexts when using cross-language tooling) it will give you its default value for that type:
+
+```ts
+console.log(JSON.stringify(emptyMessage.message)); /*
+  ""
+*/
+
+// This means you can't tell the difference between the field being missing or
+// present as an empty string when accessing the field in this way.
+```
+
+But if you want to work with plain objects, `.toJSON` will omit the fields entirely:
+
+```ts
+console.log(emptyMessage.toJSON()); /*
+  {}
+*/
+```
+
+In the real world, fields are very often required. It is generally the expected default when programming - if you say that a structure has a field, then an instance of that structure must have that field.
+
+In many cases, this means you need to take special care to deal with the fact that protobuf considers your fields to be optional, even though your application considers messages that are missing those fields to be invalid, and thus should never have been encoded/decoded in the first place.
+
+Protobuf's reason for doing this is that it helps with compatibility. If you are forced to check whether fields are present, then an old message which doesn't have that field will be able to be processed by your upgrade that includes that field (even if that means the upgrade throws it out because it is required nonetheless). Some may find this valuable. `typed-bytes` allows you to make this decision instead of deciding for you.
+
+5. `typed-bytes` allows entities of all shapes and sizes, but protobuf only
+supports objects:
+
+```ts
+const LogMessages = tb.array(LogMessage);
+```
+
+If you want an array in protobuf, you must wrap it in an object:
+
+```proto
+message LogMessages {
+  repeated LogMessage content = 1;
+}
+```
 
 ### Avro
 
