@@ -84,7 +84,7 @@ const decodedValue = decode(buffer);
 
 ## [A More Complex Example](./examples/Shapes/README.md)
 
-Suppose we were making graphics application where the user can draw shapes on a
+Suppose we were making a graphics application where the user can draw shapes on a
 canvas. We want to be able to be able to encode the canvas and its shapes so we
 can save it to disk, synchronize it with a remote display, or what-have-you.
 
