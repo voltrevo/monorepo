@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message LogMessage {
+  enum Level {
+    INFO = 1;
+    WARN = 2;
+    ERROR = 3;
+  }
+
+  Level level = 1;
+  string message = 2;
+}

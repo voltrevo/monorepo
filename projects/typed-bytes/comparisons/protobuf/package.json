@@ -1,0 +1,18 @@
+{
+  "name": "protobuf-test",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-proto-js": "pbjs messages.proto -t static-module -o messages.js",
+    "build-proto-ts": "./node_modules/.bin/pbts messages.js -o messages.d.ts",
+    "build": "npm run build-proto-js && npm run build-proto-ts && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "private": true,
+  "dependencies": {
+    "protobufjs": "^6.11.2",
+    "typescript": "^4.2.4"
+  }
+}
