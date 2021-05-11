@@ -98,6 +98,9 @@ vector graphics format to achieve this using `typed-bytes`.
 
 ### MessagePack
 
+<details>
+<summary>Less compact, no type information, click for more</summary>
+
 1. typed-bytes is more compact:
 
 ```ts
@@ -129,8 +132,12 @@ const msgpackValue = msgpack.decode(buffer);
 // }
 const tbValue = tb.decodeBuffer(LogMessage, buffer);
 ```
+</details>
 
 ### Protocol Buffers
+
+<details>
+<summary>Code-gen, unnecessary code complexity, click for more</summary>
 
 1. Requires learning a special-purpose `.proto` language (can be a positive *if* you need to
 share a protocol with a team that doesn't want to interact with TypeScript)
@@ -228,15 +235,28 @@ message LogMessages {
   repeated LogMessage content = 1;
 }
 ```
+</details>
 
 ### Avro
 
-TODO
+<details>
+<summary>TODO</summary>
+
+1. TODO
+</details>
 
 ### Cap'n Proto
 
-TODO
+<details>
+<summary>TODO</summary>
+
+1. TODO
+</details>
 
 ### Flat Buffers
 
-TODO
+<details>
+<summary>TODO</summary>
+
+1. TODO
+</details>
