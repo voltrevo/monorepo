@@ -1,0 +1,15 @@
+{
+  "name": "typed-bytes",
+  "version": "0.1.0",
+  "description": "A public domain binary encoding library for TypeScript.",
+  "main": "build/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Morris",
+  "license": "Unlicense",
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  }
+}
