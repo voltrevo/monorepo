@@ -37,7 +37,17 @@ await shell.run("npm", "install");
   const newLines: string[] = [];
 
   for (const line of contentLines) {
-    newLines.push(line.replace(/(\[[^\]]*\])\(.\//, `$1(${projectPath}/`));
+    let newLine = line.replace(/(\[[^\]]*\])\(.\//, `$1(${projectPath}/`);
+
+    if (/\.png\)/.test(newLine)) {
+      // Use raw version for .png
+      newLine = newLine.replace(
+        "https://github.com/voltrevo/monorepo/tree/",
+        "https://raw.githubusercontent.com/voltrevo/monorepo/",
+      );
+    }
+
+    newLines.push(newLine);
   }
 
   await Deno.writeFile(
