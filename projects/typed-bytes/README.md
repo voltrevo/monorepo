@@ -4,8 +4,12 @@
 
 ## Hello World
 
+```sh
+npm install typed-bytes
+```
+
 ```ts
-import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/26caa290/projects/typed-bytes/mod.ts";
+import * as tb from "typed-bytes";
 
 const bb = tb.BufferBicoder(tb.string);
 
@@ -20,6 +24,15 @@ console.log(new Uint8Array(
     108, 100,  33
   ]
 */
+```
+
+**Deno users**
+
+No need for install and run the above code directly with this tweak:
+
+```diff
+-import * as tb from "typed-bytes";
++import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/0bb6b07/projects/typed-bytes/mod.ts";
 ```
 
 ## About
