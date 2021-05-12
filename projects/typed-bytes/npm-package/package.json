@@ -11,5 +11,20 @@
   "license": "Unlicense",
   "devDependencies": {
     "typescript": "^4.2.4"
-  }
+  },
+  "keywords": [
+    "typescript",
+    "binary",
+    "encoding",
+    "serialization",
+    "protocol",
+    "protobuf",
+    "avro",
+    "messagepack",
+    "flatbuffers"
+  ],
+  "bugs": {
+    "url": "https://github.com/voltrevo/monorepo/issues"
+  },
+  "homepage": "https://github.com/voltrevo/monorepo/blob/master/projects/typed-bytes/README.md"
 }
