@@ -4,6 +4,7 @@ import { ProtocolBase } from "./Protocol.ts";
 import BufferIO from "./BufferIO.ts";
 import TypedIO from "./TypedIO.ts";
 import { RequestBicoder } from "./Request.ts";
+import Response from "./Response.ts";
 
 function Client<Protocol extends ProtocolBase>(
   bufferIO: BufferIO,
@@ -13,11 +14,6 @@ function Client<Protocol extends ProtocolBase>(
 
   const Request = RequestBicoder(protocol);
   type Request = tb.TypeOf<typeof Request>;
-
-  const Response = tb.object({
-    id: tb.size,
-    data: tb.buffer,
-  });
 
   const typedIO = TypedIO(bufferIO, Response, Request);
 
