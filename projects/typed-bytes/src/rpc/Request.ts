@@ -7,6 +7,7 @@ type MethodMessage<
   Protocol extends ProtocolBase,
   MethodName extends keyof Protocol,
 > = {
+  id: number;
   method: MethodName;
   args: tb.BicoderTargets<Protocol[MethodName]["args"]>;
 };
@@ -20,13 +21,14 @@ type Request<Protocol extends ProtocolBase> = tb.Bicoder<
 >;
 
 export function RequestBicoder<Protocol extends ProtocolBase>(
-  Protocol: Protocol,
+  protocol: Protocol,
 ): Request<Protocol> {
   return tb.union(
-    ...Object.keys(Protocol).map((methodName) =>
+    ...Object.keys(protocol).map((methodName) =>
       tb.object({
+        id: tb.size,
         method: tb.exact(methodName),
-        args: tb.tuple(...Protocol[methodName].args),
+        args: tb.tuple(...protocol[methodName].args),
       })
     ),
   ) as unknown as Request<Protocol>;
