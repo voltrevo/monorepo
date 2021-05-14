@@ -23,7 +23,10 @@ export default function serveProtocol<Protocol extends ProtocolBase>(
       handler(...request.args).then((response) =>
         typedIO.write({
           id: request.id,
-          data: tb.encodeBuffer(protocol[request.method].result, response),
+          data: tb.encodeBuffer(
+            protocol.methods[request.method as string].result,
+            response,
+          ),
         })
       );
     }

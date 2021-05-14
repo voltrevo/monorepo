@@ -37,10 +37,7 @@ function Client<Protocol extends ProtocolBase>(
   })();
 
   return Object.fromEntries(
-    Object.entries(protocol).map(([methodName, method]) => {
-      methodName;
-      method;
-
+    Object.entries(protocol.methods).map(([methodName, method]) => {
       return [
         methodName,
         async (...args: unknown[]) => {
@@ -56,7 +53,10 @@ function Client<Protocol extends ProtocolBase>(
             pendingResolves[id] = resolve;
           });
 
-          return tb.decodeBuffer(protocol[methodName].result, responseData);
+          return tb.decodeBuffer(
+            protocol.methods[methodName].result,
+            responseData,
+          );
         },
       ];
     }),

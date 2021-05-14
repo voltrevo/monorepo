@@ -17,11 +17,14 @@ type Method<
 
 export default function method<
   Args extends MethodBase["args"],
-  Result extends MethodBase["result"],
->(args: Args, result: Result): Method<Args, Result> {
-  return {
+>(
+  ...args: Args
+): <Result extends MethodBase["result"]>(
+  result: Result,
+) => Method<Args, Result> {
+  return (result) => ({
     type: "method",
     args,
     result,
-  };
+  });
 }
