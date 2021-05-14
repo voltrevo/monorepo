@@ -4,6 +4,24 @@ import * as tb from "../../mod.ts";
 import * as rpc from "../../src/rpc/index.ts";
 import BufferIOPair from "./helpers/BufferIOPair.ts";
 
+Deno.test("ping", async () => {
+  const protocol = rpc.Protocol({
+    ping: rpc.method()(),
+  });
+
+  const { left: clientIO, right: serverIO } = BufferIOPair();
+
+  const client = rpc.Client(clientIO, protocol);
+
+  rpc.serveProtocol(serverIO, protocol, {
+    ping: () => Promise.resolve(),
+  });
+
+  const reply = await client.ping();
+
+  assertEquals(reply, undefined);
+});
+
 Deno.test("greet", async () => {
   const protocol = rpc.Protocol({
     greet: rpc.method(tb.string)(tb.string),

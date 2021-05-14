@@ -15,16 +15,22 @@ type Method<
   result: Result;
 };
 
+// deno-lint-ignore no-explicit-any
+type ExplicitAny = any;
+
 export default function method<
   Args extends MethodBase["args"],
 >(
   ...args: Args
-): <Result extends MethodBase["result"]>(
-  result: Result,
-) => Method<Args, Result> {
-  return (result) => ({
+): <ResultArgs extends [MethodBase["result"]] | []>(
+  ...resultArgs: ResultArgs
+) => Method<
+  Args,
+  ResultArgs extends [] ? tb.Bicoder<void> : ResultArgs[0]
+> {
+  return (...resultArgs) => ({
     type: "method",
     args,
-    result,
+    result: (resultArgs[0] ?? tb.undefined_) as ExplicitAny,
   });
 }
