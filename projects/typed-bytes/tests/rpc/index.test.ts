@@ -4,18 +4,26 @@ import * as tb from "../../mod.ts";
 import * as rpc from "../../src/rpc/index.ts";
 import BufferIOPair from "./helpers/BufferIOPair.ts";
 
-Deno.test("ping", async () => {
-  const protocol = rpc.Protocol({
-    ping: rpc.method()(),
-  });
-
+function Fixture<Protocol extends rpc.ProtocolBase>(
+  protocol: Protocol,
+  implementation: rpc.Implementation<Protocol>,
+) {
   const { left: clientIO, right: serverIO } = BufferIOPair();
-
   const client = rpc.Client(clientIO, protocol);
+  rpc.serveProtocol(serverIO, protocol, implementation);
 
-  rpc.serveProtocol(serverIO, protocol, {
-    ping: () => Promise.resolve(),
-  });
+  return { client };
+}
+
+Deno.test("ping", async () => {
+  const { client } = Fixture(
+    rpc.Protocol({
+      ping: rpc.method()(),
+    }),
+    {
+      ping: () => Promise.resolve(),
+    },
+  );
 
   const reply = await client.ping();
 
@@ -23,17 +31,14 @@ Deno.test("ping", async () => {
 });
 
 Deno.test("greet", async () => {
-  const protocol = rpc.Protocol({
-    greet: rpc.method(tb.string)(tb.string),
-  });
-
-  const { left: clientIO, right: serverIO } = BufferIOPair();
-
-  const client = rpc.Client(clientIO, protocol);
-
-  rpc.serveProtocol(serverIO, protocol, {
-    greet: (name) => Promise.resolve(`Hi ${name}`),
-  });
+  const { client } = Fixture(
+    rpc.Protocol({
+      greet: rpc.method(tb.string)(tb.string),
+    }),
+    {
+      greet: (name) => Promise.resolve(`Hi ${name}`),
+    },
+  );
 
   const reply = await client.greet("Alice");
 
