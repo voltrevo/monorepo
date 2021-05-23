@@ -16,8 +16,13 @@ export default function serveProtocol<Protocol extends ProtocolBase>(
 
   (async () => {
     while (true) {
-      const request = await typedIO.read();
+      const readResult = await typedIO.read();
 
+      if (readResult === null) {
+        return;
+      }
+
+      const request = readResult.message;
       const handler = implementation[request.method];
 
       handler(...request.args).then((response) =>

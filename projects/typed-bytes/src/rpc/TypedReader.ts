@@ -2,7 +2,7 @@ import * as tb from "../index.ts";
 import type BufferReader from "./BufferReader.ts";
 
 type TypedReader<T> = {
-  read(): Promise<T>;
+  read(): Promise<{ message: T } | null>;
 };
 
 function TypedReader<T>(
@@ -10,7 +10,15 @@ function TypedReader<T>(
   bicoder: tb.Bicoder<T>,
 ): TypedReader<T> {
   return {
-    read: async () => tb.decodeBuffer(bicoder, await bufferReader.read()),
+    read: async () => {
+      const buffer = await bufferReader.read();
+
+      if (buffer === null) {
+        return null;
+      }
+
+      return { message: tb.decodeBuffer(bicoder, buffer) };
+    },
   };
 }
 

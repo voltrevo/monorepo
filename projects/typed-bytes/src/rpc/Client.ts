@@ -17,14 +17,36 @@ function Client<Protocol extends ProtocolBase>(
 
   const typedIO = TypedIO(bufferIO, Response, Request);
 
-  const pendingResolves: (((response: ArrayBuffer) => void) | undefined)[] = [];
+  type PendingResult = {
+    resolve: (response: ArrayBuffer) => void;
+    reject: (error: Error) => void;
+  } | undefined;
+
+  const pendingResults: PendingResult[] = [];
+
+  function close() {
+    for (const [idStr, result] of Object.entries(pendingResults)) {
+      if (result !== undefined) {
+        result.reject(new Error("Connection closed"));
+      }
+
+      delete pendingResults[Number(idStr)];
+    }
+  }
 
   (async () => {
     while (true) {
-      const response = await typedIO.read();
-      const resolve = pendingResolves[response.id];
+      const readResult = await typedIO.read();
 
-      if (resolve === undefined) {
+      if (readResult === null) {
+        close();
+        return;
+      }
+
+      const response = readResult.message;
+      const result = pendingResults[response.id];
+
+      if (result === undefined) {
         console.error(
           `Received response for unrecognized request id ${response.id}`,
         );
@@ -32,12 +54,13 @@ function Client<Protocol extends ProtocolBase>(
         continue;
       }
 
-      resolve(response.data);
+      delete pendingResults[response.id];
+      result.resolve(response.data);
     }
   })();
 
   return Object.fromEntries(
-    Object.entries(protocol.methods).map(([methodName, method]) => {
+    Object.keys(protocol.methods).map((methodName) => {
       return [
         methodName,
         async (...args: unknown[]) => {
@@ -49,9 +72,11 @@ function Client<Protocol extends ProtocolBase>(
             args: args as Request["args"],
           });
 
-          const responseData = await new Promise<ArrayBuffer>((resolve) => {
-            pendingResolves[id] = resolve;
-          });
+          const responseData = await new Promise<ArrayBuffer>(
+            (resolve, reject) => {
+              pendingResults[id] = { resolve, reject };
+            },
+          );
 
           return tb.decodeBuffer(
             protocol.methods[methodName].result,
