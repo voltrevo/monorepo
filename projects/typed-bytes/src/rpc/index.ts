@@ -5,3 +5,5 @@ export { default as Method } from "./Method.ts";
 export { default as Client } from "./Client.ts";
 export { default as Server } from "./Server.ts";
 export { default as serveProtocol } from "./serveProtocol.ts";
+export type { default as BufferIO } from "./BufferIO.ts";
+export { default as BufferIOChannels } from "./BufferIOChannels.ts";
