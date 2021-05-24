@@ -1,6 +1,6 @@
 import BufferReader from "../../../src/rpc/BufferReader.ts";
 import BufferWriter from "../../../src/rpc/BufferWriter.ts";
-import AsyncQueue from "./AsyncQueue.ts";
+import AsyncQueue from "../../../src/rpc/helpers/AsyncQueue.ts";
 
 export default function BufferPipe(): {
   reader: BufferReader;

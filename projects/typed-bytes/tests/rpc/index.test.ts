@@ -18,7 +18,7 @@ function Fixture<Protocol extends rpc.ProtocolBase>(
 Deno.test("ping", async () => {
   const { client } = Fixture(
     rpc.Protocol({
-      ping: rpc.method()(),
+      ping: rpc.Method()(),
     }),
     {
       ping: () => Promise.resolve(),
@@ -33,7 +33,7 @@ Deno.test("ping", async () => {
 Deno.test("greet", async () => {
   const { client } = Fixture(
     rpc.Protocol({
-      greet: rpc.method(tb.string)(tb.string),
+      greet: rpc.Method(tb.string)(tb.string),
     }),
     {
       greet: (name) => Promise.resolve(`Hi ${name}`),

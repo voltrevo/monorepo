@@ -18,7 +18,7 @@ type Method<
 // deno-lint-ignore no-explicit-any
 type ExplicitAny = any;
 
-export default function method<
+export default function Method<
   Args extends MethodBase["args"],
 >(
   ...args: Args

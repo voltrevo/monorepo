@@ -1,4 +1,4 @@
-import { MethodBase } from "./method.ts";
+import { MethodBase } from "./Method.ts";
 
 export type ProtocolBase = {
   type: "protocol";
