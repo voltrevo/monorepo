@@ -33,10 +33,10 @@ export function BufferBicoder<T>(bicoder: Bicoder<T>): BufferBicoder<T> {
 }
 
 export const JSON = {
-  stringify: <T>(_bicoder: Bicoder<T>, value: T): string => (
-    jsonGlobal.stringify(value)
-  ),
-  parse: <T>(bicoder: Bicoder<T>, jsonString: string): T => {
+  stringify: function <T>(_bicoder: Bicoder<T>, value: T): string {
+    return jsonGlobal.stringify(value);
+  },
+  parse: function <T>(bicoder: Bicoder<T>, jsonString: string): T {
     const parsed = jsonGlobal.parse(jsonString);
 
     if (!bicoder.test(parsed)) {

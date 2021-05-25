@@ -7,7 +7,9 @@ import type {
   UnionOf,
 } from "./types.ts";
 
-export const echo = <T>(value: T) => value;
+export const echo = function <T>(value: T) {
+  return value;
+};
 
 export const size: Bicoder<number> = {
   encode(stream, value) {
