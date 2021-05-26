@@ -13,9 +13,7 @@ import * as tb from "typed-bytes";
 
 const bb = tb.BufferBicoder(tb.string);
 
-console.log(new Uint8Array(
-  bb.encode("Hello world!"),
-));
+console.log(bb.encode("Hello world!"));
 
 /*
   Uint8Array(13) [
@@ -83,7 +81,7 @@ const buffer = encode({
 
   // (Notice how no bytes were used for strings 'level', 'message', or 'INFO')
 */
-console.log(new Uint8Array(buffer));
+console.log(buffer);
 
 /*
   // on hover:

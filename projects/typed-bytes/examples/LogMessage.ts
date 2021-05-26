@@ -30,7 +30,7 @@ const buffer = encode({
 
   // (Notice how no bytes were used for strings 'level', 'message', or 'LOG')
 */
-console.log(new Uint8Array(buffer));
+console.log(buffer);
 
 /*
   // on hover:

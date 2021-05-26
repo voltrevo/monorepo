@@ -42,4 +42,4 @@ const drawing: Drawing = {
 
 const buffer = tb.encodeBuffer(Drawing, drawing);
 
-console.log(new Uint8Array(buffer));
+console.log(buffer);

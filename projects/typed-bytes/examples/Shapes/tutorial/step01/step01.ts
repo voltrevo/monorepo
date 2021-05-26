@@ -14,4 +14,4 @@ const buffer = tb.encodeBuffer(Canvas, {
   64, 148,   0, 0, 0, 0, 0, 0, // 1280
   64, 134, 128, 0, 0, 0, 0, 0, //  720
 */
-console.log(new Uint8Array(buffer));
+console.log(buffer);

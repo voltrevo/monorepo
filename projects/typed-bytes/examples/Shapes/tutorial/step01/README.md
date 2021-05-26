@@ -10,7 +10,7 @@ const Canvas = tb.object({
 
 const buffer = tb.encodeBuffer(Canvas, { width: 1280, height: 720 });
 
-console.log(new Uint8Array(buffer)); /*
+console.log(buffer); /*
   64, 148,   0, 0, 0, 0, 0, 0, // 1280
   64, 134, 128, 0, 0, 0, 0, 0, //  720
 */

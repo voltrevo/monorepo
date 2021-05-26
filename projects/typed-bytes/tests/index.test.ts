@@ -13,7 +13,7 @@ function testBicoder<T extends tb.AnyBicoder>(
     const bb = tb.BufferBicoder(bicoder);
 
     const buffer = bb.encode(value);
-    assertEquals([...new Uint8Array(buffer)], bytes);
+    assertEquals([...buffer], bytes);
 
     const valueDecoded = bb.decode(buffer);
     assertEquals(valueDecoded, value);
@@ -334,8 +334,5 @@ Deno.test("shapes", () => {
     rotation: 30,
   });
 
-  assertEquals(
-    [...new Uint8Array(buffer)],
-    [1, 0, 0, 100, 60],
-  );
+  assertEquals([...buffer], [1, 0, 0, 100, 60]);
 });
