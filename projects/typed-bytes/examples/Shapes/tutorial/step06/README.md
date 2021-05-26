@@ -54,7 +54,7 @@ console.log(new Uint8Array(
 console.log(
   tb.decodeBuffer(
     tb.exact("hello"),
-    new ArrayBuffer(0),
+    new Uint8Array(0),
   ),
 );
 // hello

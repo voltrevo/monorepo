@@ -49,8 +49,7 @@ export const size: Bicoder<number> = {
     }
   },
 
-  // TODO: Possible issues since we reject some numbers
-  test(value): value is number {
+  test(value) {
     return (
       typeof value === "number" &&
       Number.isFinite(value) &&
@@ -77,8 +76,7 @@ export const isize: Bicoder<number> = {
     return sign * absSize;
   },
 
-  // TODO: Possible issues since we reject some numbers
-  test(value): value is number {
+  test(value) {
     return (
       typeof value === "number" &&
       Number.isFinite(value) &&
@@ -89,7 +87,7 @@ export const isize: Bicoder<number> = {
   echo,
 };
 
-export const buffer: Bicoder<ArrayBuffer> = {
+export const buffer: Bicoder<Uint8Array> = {
   encode(stream, value) {
     size.encode(stream, value.byteLength);
     stream.writeBuffer(value);
@@ -98,8 +96,8 @@ export const buffer: Bicoder<ArrayBuffer> = {
     const sz = size.decode(stream);
     return stream.readBuffer(sz);
   },
-  test(value): value is ArrayBuffer {
-    return value instanceof ArrayBuffer;
+  test(value) {
+    return value instanceof Uint8Array;
   },
   echo,
 };
@@ -111,7 +109,7 @@ export const byte: Bicoder<number> = {
   decode(stream) {
     return stream.readByte();
   },
-  test(value): value is number {
+  test(value) {
     return (
       typeof value === "number" &&
       Number.isFinite(value) &&
@@ -127,12 +125,12 @@ export const number: Bicoder<number> = {
   encode(stream, value) {
     const buf = new ArrayBuffer(8);
     new DataView(buf).setFloat64(0, value);
-    stream.writeBuffer(buf);
+    stream.writeBuffer(new Uint8Array(buf));
   },
   decode(stream) {
-    return new DataView(stream.readBuffer(8)).getFloat64(0);
+    return new DataView(stream.readBuffer(8).slice().buffer).getFloat64(0);
   },
-  test(value): value is number {
+  test(value) {
     return typeof value === "number";
   },
   echo,
@@ -140,12 +138,12 @@ export const number: Bicoder<number> = {
 
 export const string: Bicoder<string> = {
   encode(stream, value) {
-    buffer.encode(stream, new TextEncoder().encode(value).buffer);
+    buffer.encode(stream, new TextEncoder().encode(value));
   },
   decode(stream) {
     return new TextDecoder().decode(buffer.decode(stream));
   },
-  test(value): value is string {
+  test(value) {
     return typeof value === "string";
   },
   echo,
@@ -158,7 +156,7 @@ export const boolean: Bicoder<boolean> = {
   decode(stream) {
     return stream.readByte() !== 1; // TODO: Be strict
   },
-  test(value): value is boolean {
+  test(value) {
     return typeof value === "boolean";
   },
   echo,
@@ -169,7 +167,7 @@ export const null_: Bicoder<null> = {
   decode(_stream) {
     return null;
   },
-  test(value): value is null {
+  test(value) {
     return value === null;
   },
   echo,
@@ -180,7 +178,7 @@ export const undefined_: Bicoder<undefined> = {
   decode(_stream) {
     return undefined;
   },
-  test(value): value is undefined {
+  test(value) {
     return value === undefined;
   },
   echo,
@@ -205,7 +203,7 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
 
       return value;
     },
-    test(value): value is T[] {
+    test(value) {
       return Array.isArray(value) && value.every((v) => element.test(v));
     },
     echo,
@@ -232,7 +230,7 @@ export function object<T extends Record<string, unknown>>(
 
       return value as T;
     },
-    test(value): value is T {
+    test(value) {
       const keys = Object.keys(elements);
 
       return (
@@ -273,7 +271,7 @@ export function stringMap<T>(
 
       return result;
     },
-    test(value): value is StringMap<T> {
+    test(value) {
       return (
         typeof value === "object" &&
         value !== null &&
@@ -302,7 +300,7 @@ export function tuple<T extends AnyBicoder[]>(
 
       return results as BicoderTargets<T>;
     },
-    test(value): value is BicoderTargets<T> {
+    test(value) {
       return (
         Array.isArray(value) &&
         value.length === elements.length &&
@@ -341,7 +339,7 @@ export function union<T extends AnyBicoder[]>(
       const optionIndex = size.decode(stream);
       return options[optionIndex].decode(stream) as UnionOf<BicoderTargets<T>>;
     },
-    test(value): value is UnionOf<BicoderTargets<T>> {
+    test(value) {
       for (let i = 0; i < options.length; i++) {
         if (options[i].test(value)) {
           return true;
@@ -358,7 +356,7 @@ export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
   return {
     encode: (stream, value) => fn().encode(stream, value),
     decode: (stream) => fn().decode(stream),
-    test: (value): value is T => fn().test(value),
+    test: (value) => fn().test(value),
     echo,
   };
 }
@@ -369,7 +367,7 @@ export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
     decode(_stream) {
       return exactValue;
     },
-    test(value): value is T {
+    test(value) {
       return value === exactValue;
     },
     echo,
@@ -426,7 +424,7 @@ export const bigint: Bicoder<bigint> = {
 
     return positive ? absValue : -absValue;
   },
-  test(value): value is bigint {
+  test(value) {
     return typeof value === "bigint";
   },
   echo,

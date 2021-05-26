@@ -1,23 +1,11 @@
 import type Stream from "./Stream.ts";
 
-export type Encoder<T> = {
+export type Bicoder<T> = {
   encode(stream: Stream, value: T): void;
-};
-
-export type Decoder<T> = {
   decode(stream: Stream): T;
+  test(value: unknown): boolean;
+  echo(value: T): T;
 };
-
-export type Tester<T> = {
-  test(value: unknown): value is T;
-};
-
-export type Bicoder<T> = (
-  & Encoder<T>
-  & Decoder<T>
-  & Tester<T>
-  & { echo: (value: T) => T }
-);
 
 // deno-lint-ignore no-explicit-any
 type ExplicitAny = any;

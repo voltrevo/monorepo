@@ -1,5 +1,5 @@
 type BufferWriter = {
-  write(buffer: ArrayBuffer): Promise<void>;
+  write(buffer: Uint8Array): Promise<void>;
 };
 
 export default BufferWriter;

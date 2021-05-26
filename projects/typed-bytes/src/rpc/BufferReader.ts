@@ -1,5 +1,5 @@
 type BufferReader = {
-  read(): Promise<ArrayBuffer | null>;
+  read(): Promise<Uint8Array | null>;
 };
 
 export default BufferReader;

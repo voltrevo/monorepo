@@ -1,8 +1,8 @@
-import type { Decoder, Encoder } from "./types.ts";
+import type { Bicoder } from "./types.ts";
 
 type Stream = {
-  readBuffer(sz: number): ArrayBuffer;
-  writeBuffer(buffer: ArrayBuffer): void;
+  readBuffer(sz: number): Uint8Array;
+  writeBuffer(buffer: Uint8Array): void;
 
   readByte(): number;
   writeByte(value: number): void;
@@ -12,8 +12,8 @@ type Stream = {
 
   getLength(): number;
 
-  read<T>(decoder: Decoder<T>): T;
-  write<T>(encoder: Encoder<T>, value: T): void;
+  read<T>(bicoder: Bicoder<T>): T;
+  write<T>(bicoder: Bicoder<T>, value: T): void;
 };
 
 export default Stream;

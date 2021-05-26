@@ -1,22 +1,24 @@
 import type Stream from "./Stream.ts";
-import type { Decoder, Encoder } from "./types.ts";
+import type { Bicoder } from "./types.ts";
 
 export default class BufferStream implements Stream {
   private offset = 0;
-  private length = 0;
+  private length: number;
 
-  constructor(private buffer = new ArrayBuffer(0)) {}
+  constructor(private buffer = new Uint8Array(0)) {
+    this.length = buffer.length;
+  }
 
   private ensureCapacity(neededCapacity: number) {
-    if (neededCapacity > this.buffer.byteLength) {
-      let newCapacity = Math.max(1, this.buffer.byteLength * 2);
+    if (neededCapacity > this.buffer.length) {
+      let newCapacity = Math.max(1, this.buffer.length * 2);
 
       while (newCapacity < neededCapacity) {
         newCapacity *= 2;
       }
 
-      const newBuffer = new ArrayBuffer(newCapacity);
-      new Uint8Array(newBuffer).set(new Uint8Array(this.buffer), 0);
+      const newBuffer = new Uint8Array(newCapacity);
+      newBuffer.set(this.buffer, 0);
 
       this.buffer = newBuffer;
     }
@@ -33,24 +35,24 @@ export default class BufferStream implements Stream {
     const newOffset = this.offset + sz;
     this.prepareOffset(newOffset);
 
-    const result = this.buffer.slice(this.offset, newOffset);
+    const result = this.buffer.subarray(this.offset, newOffset);
     this.offset = newOffset;
 
     return result;
   }
 
-  writeBuffer(buffer: ArrayBuffer) {
-    const newOffset = this.offset + buffer.byteLength;
+  writeBuffer(buffer: Uint8Array) {
+    const newOffset = this.offset + buffer.length;
     this.prepareOffset(newOffset);
 
-    new Uint8Array(this.buffer).set(new Uint8Array(buffer), this.offset);
+    this.buffer.set(buffer, this.offset);
     this.offset = newOffset;
   }
 
   readByte() {
     this.prepareOffset(this.offset + 1);
 
-    const result = new Uint8Array(this.buffer)[this.offset];
+    const result = this.buffer[this.offset];
     this.offset++;
 
     return result;
@@ -59,7 +61,7 @@ export default class BufferStream implements Stream {
   writeByte(value: number) {
     this.prepareOffset(this.offset + 1);
 
-    new Uint8Array(this.buffer)[this.offset] = value;
+    this.buffer[this.offset] = value;
     this.offset++;
   }
 
@@ -77,14 +79,14 @@ export default class BufferStream implements Stream {
   }
 
   get() {
-    return this.buffer.slice(0, this.length);
+    return this.buffer.subarray(0, this.length);
   }
 
-  read<T>(decoder: Decoder<T>): T {
-    return decoder.decode(this);
+  read<T>(bicoder: Bicoder<T>): T {
+    return bicoder.decode(this);
   }
 
-  write<T>(encoder: Encoder<T>, value: T) {
-    encoder.encode(this, value);
+  write<T>(bicoder: Bicoder<T>, value: T) {
+    bicoder.encode(this, value);
   }
 }

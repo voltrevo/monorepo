@@ -6,7 +6,7 @@ export default function BufferPipe(): {
   reader: BufferReader;
   writer: BufferWriter;
 } {
-  const queue = new AsyncQueue<ArrayBuffer>();
+  const queue = new AsyncQueue<Uint8Array>();
 
   return {
     reader: {

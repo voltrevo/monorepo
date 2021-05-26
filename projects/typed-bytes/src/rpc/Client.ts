@@ -18,7 +18,7 @@ function Client<Protocol extends ProtocolBase>(
   const typedIO = TypedIO(bufferIO, Response, Request);
 
   type PendingResult = {
-    resolve: (response: ArrayBuffer) => void;
+    resolve: (response: Uint8Array) => void;
     reject: (error: Error) => void;
   } | undefined;
 
@@ -72,7 +72,7 @@ function Client<Protocol extends ProtocolBase>(
             args: args as Request["args"],
           });
 
-          const responseData = await new Promise<ArrayBuffer>(
+          const responseData = await new Promise<Uint8Array>(
             (resolve, reject) => {
               pendingResults[id] = { resolve, reject };
             },

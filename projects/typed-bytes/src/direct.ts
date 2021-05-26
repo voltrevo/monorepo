@@ -1,24 +1,24 @@
-import type { Bicoder, Decoder, Encoder } from "./types.ts";
+import type { Bicoder } from "./types.ts";
 import BufferStream from "./BufferStream.ts";
 import jsonGlobal from "./jsonGlobal.ts";
 
-export function encodeBuffer<T>(encoder: Encoder<T>, value: T): ArrayBuffer {
+export function encodeBuffer<T>(bicoder: Bicoder<T>, value: T): Uint8Array {
   const stream = new BufferStream();
-  stream.write(encoder, value);
+  stream.write(bicoder, value);
   stream.setOffset(0);
 
   return stream.get();
 }
 
-export function decodeBuffer<T>(decoder: Decoder<T>, buffer: ArrayBuffer): T {
+export function decodeBuffer<T>(bicoder: Bicoder<T>, buffer: Uint8Array): T {
   const stream = new BufferStream(buffer);
 
-  return stream.read(decoder);
+  return stream.read(bicoder);
 }
 
 export type BufferBicoder<T> = {
-  encode(value: T): ArrayBuffer;
-  decode(buffer: ArrayBuffer): T;
+  encode(value: T): Uint8Array;
+  decode(buffer: Uint8Array): T;
 };
 
 export function BufferBicoder<T>(bicoder: Bicoder<T>): BufferBicoder<T> {

@@ -14,14 +14,14 @@ const ChannelMessage = tb.object({
 });
 
 export default function BufferIOChannels(bufferIO: BufferIO): BufferIOChannels {
-  const channelQueues: { [id: number]: AsyncQueue<ArrayBuffer> | undefined } =
+  const channelQueues: { [id: number]: AsyncQueue<Uint8Array> | undefined } =
     {};
 
-  function Queue(id: number): AsyncQueue<ArrayBuffer> {
+  function Queue(id: number): AsyncQueue<Uint8Array> {
     let queue = channelQueues[id];
 
     if (queue === undefined) {
-      queue = new AsyncQueue<ArrayBuffer>();
+      queue = new AsyncQueue<Uint8Array>();
       channelQueues[id] = queue;
     }
 
