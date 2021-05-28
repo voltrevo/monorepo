@@ -1,5 +1,3 @@
-import * as tb from "../../../../../mod.ts";
-
 import * as shapes from "../../shapes.ts";
 import colors from "../../drawings/colors.ts";
 import render from "../../render.ts";
@@ -54,4 +52,4 @@ const drawing: shapes.Drawing = {
 
 await Deno.writeFile("./drawing.png", render(drawing));
 
-console.log(tb.encodeBuffer(shapes.Drawing, drawing).byteLength, "bytes");
+console.log(shapes.Drawing.encode(drawing).length, "bytes");

@@ -10,12 +10,10 @@ function testBicoder<T extends tb.AnyBicoder>(
   testCases: { value: tb.TypeOf<T>; bytes: number[] }[],
 ) {
   for (const { value, bytes } of testCases) {
-    const bb = tb.BufferBicoder(bicoder);
-
-    const buffer = bb.encode(value);
+    const buffer = bicoder.encode(value);
     assertEquals([...buffer], bytes);
 
-    const valueDecoded = bb.decode(buffer);
+    const valueDecoded = bicoder.decode(buffer);
     assertEquals(valueDecoded, value);
   }
 }
@@ -260,31 +258,26 @@ Deno.test("bicode custom class", () => {
       public x: number,
       public y: number,
     ) {}
+
+    static bicoder = new tb.Bicoder<Point>({
+      write(stream, point) {
+        stream.write(tb.number, point.x);
+        stream.write(tb.number, point.y);
+      },
+      read(stream) {
+        return new Point(
+          stream.read(tb.number),
+          stream.read(tb.number),
+        );
+      },
+      test(value): value is Point {
+        return value instanceof Point;
+      },
+    });
   }
 
-  const pointBicoder: tb.Bicoder<Point> = {
-    encode(stream, point) {
-      stream.write(tb.number, point.x);
-      stream.write(tb.number, point.y);
-    },
-    decode(stream) {
-      return new Point(
-        stream.read(tb.number),
-        stream.read(tb.number),
-      );
-    },
-    test(value): value is Point {
-      return value instanceof Point;
-    },
-    echo(value) {
-      return value;
-    },
-  };
-
-  const bb = tb.BufferBicoder(pointBicoder);
-
-  const buffer = bb.encode(new Point(1, 2));
-  const point = bb.decode(buffer);
+  const buffer = Point.bicoder.encode(new Point(1, 2));
+  const point = Point.bicoder.decode(buffer);
 
   assertEquals(point, new Point(1, 2));
   assert(point instanceof Point);
@@ -328,7 +321,7 @@ Deno.test("shapes", () => {
   const Shape = tb.union(Circle, Triangle, Square);
   type Shape = tb.TypeOf<typeof Shape>;
 
-  const buffer = tb.encodeBuffer(Shape, {
+  const buffer = Shape.encode({
     position: { x: 0, y: 0 },
     radius: 100,
     rotation: 30,

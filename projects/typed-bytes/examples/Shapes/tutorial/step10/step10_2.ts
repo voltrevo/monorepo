@@ -179,4 +179,4 @@ const drawing: Drawing = {
   },
 };
 
-console.log(new Uint8Array(tb.encodeBuffer(Drawing, drawing)));
+console.log(Drawing.encode(drawing));

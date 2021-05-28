@@ -44,18 +44,12 @@ For example:
 
 ```ts
 console.log(new Uint8Array(
-  tb.encodeBuffer(
-    tb.exact("hello"),
-    "hello",
-  ),
+  tb.exact("hello").encode("hello")
 ));
 // Uint8Array(0) []
 
 console.log(
-  tb.decodeBuffer(
-    tb.exact("hello"),
-    new Uint8Array(0),
-  ),
+  tb.exact("hello").decode(new Uint8Array(0)),
 );
 // hello
 ```

@@ -127,7 +127,7 @@ const drawing: Drawing = {
   shapes,
 };
 
-console.log(new Uint8Array(tb.encodeBuffer(Drawing, drawing))); /*
+console.log(Drawing.encode(drawing)); /*
   // Canvas
   128,  10, 208,   5,   0,
 

@@ -28,8 +28,7 @@ export default function serveProtocol<Protocol extends ProtocolBase>(
       handler(...request.args).then((response) =>
         typedIO.write({
           id: request.id,
-          data: tb.encodeBuffer(
-            protocol.methods[request.method as string].result,
+          data: protocol.methods[request.method as string].result.encode(
             response,
           ),
         })

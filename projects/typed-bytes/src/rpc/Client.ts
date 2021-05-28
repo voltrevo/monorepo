@@ -78,10 +78,7 @@ function Client<Protocol extends ProtocolBase>(
             },
           );
 
-          return tb.decodeBuffer(
-            protocol.methods[methodName].result,
-            responseData,
-          );
+          return protocol.methods[methodName].result.decode(responseData);
         },
       ];
     }),

@@ -8,7 +8,7 @@ const Canvas = tb.object({
   height: tb.number,
 });
 
-const buffer = tb.encodeBuffer(Canvas, { width: 1280, height: 720 });
+const buffer = Canvas.encode({ width: 1280, height: 720 });
 
 console.log(buffer); /*
   64, 148,   0, 0, 0, 0, 0, 0, // 1280

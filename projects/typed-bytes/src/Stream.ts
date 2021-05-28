@@ -1,4 +1,4 @@
-import type { Bicoder } from "./types.ts";
+import type Bicoder from "./Bicoder.ts";
 
 type Stream = {
   readBuffer(sz: number): Uint8Array;

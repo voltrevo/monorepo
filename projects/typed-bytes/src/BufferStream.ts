@@ -1,5 +1,5 @@
 import type Stream from "./Stream.ts";
-import type { Bicoder } from "./types.ts";
+import type Bicoder from "./Bicoder.ts";
 
 export default class BufferStream implements Stream {
   private offset = 0;
@@ -83,10 +83,10 @@ export default class BufferStream implements Stream {
   }
 
   read<T>(bicoder: Bicoder<T>): T {
-    return bicoder.decode(this);
+    return bicoder.read(this);
   }
 
   write<T>(bicoder: Bicoder<T>, value: T) {
-    bicoder.encode(this, value);
+    bicoder.write(this, value);
   }
 }

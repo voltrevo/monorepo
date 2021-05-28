@@ -11,9 +11,9 @@ npm install typed-bytes
 ```ts
 import * as tb from "typed-bytes";
 
-const bb = tb.BufferBicoder(tb.string);
-
-console.log(bb.encode("Hello world!"));
+console.log(
+  tb.string.encode("Hello world!"),
+);
 
 /*
   Uint8Array(13) [
@@ -65,9 +65,7 @@ const LogMessage = tb.object({
 */
 type LogMessage = tb.TypeOf<typeof LogMessage>;
 
-const { encode, decode } = tb.BufferBicoder(LogMessage);
-
-const buffer = encode({
+const buffer = LogMessage.encode({
   level: "INFO",
   message: "Test message",
 });
@@ -90,7 +88,7 @@ console.log(buffer);
     message: string;
   }
 */
-const decodedValue = decode(buffer);
+const decodedValue = LogMessage.decode(buffer);
 ```
 
 ## [A More Complex Example](./examples/Shapes/README.md)
@@ -152,7 +150,7 @@ const msg: LogMessage = {
 };
 
 new TextEncoder().encode(JSON.stringify(msg)); // 40 bytes
-tb.encodeBuffer(LogMessage, msg);              // 14 bytes
+LogMessage.encode(msg);                        // 14 bytes
 ```
 
 Of course, typed-bytes is relying on the type information to achieve this, and
@@ -172,7 +170,7 @@ const jsonValue = JSON.parse('{"type":"INFO","message":"Test message"}');
 //     level: "INFO" | "WARN" | "ERROR";
 //     message: string;
 // }
-const tbValue = tb.decodeBuffer(LogMessage, buffer);
+const tbValue = LogMessage.decode(buffer);
 ```
 
 If you still really like JSON for its human readable format, and you like JSON's
@@ -215,8 +213,8 @@ const msg: LogMessage = {
   message: 'Test message',
 };
 
-msgpack.encode(msg);              // 33 bytes
-tb.encodeBuffer(LogMessage, msg); // 14 bytes
+msgpack.encode(msg);    // 33 bytes
+LogMessage.encode(msg); // 14 bytes
 ```
 
 Of course, typed-bytes is relying on the type information to achieve this, and
@@ -236,7 +234,7 @@ const msgpackValue = msgpack.decode(buffer);
 //     level: "INFO" | "WARN" | "ERROR";
 //     message: string;
 // }
-const tbValue = tb.decodeBuffer(LogMessage, buffer);
+const tbValue = LogMessage.decode(buffer);
 ```
 </details>
 

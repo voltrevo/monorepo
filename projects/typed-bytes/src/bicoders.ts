@@ -1,18 +1,14 @@
+import Bicoder from "./Bicoder.ts";
 import type {
   AnyBicoder,
-  Bicoder,
   BicoderTargets,
   Primitive,
   StringMap,
   UnionOf,
 } from "./types.ts";
 
-export const echo = function <T>(value: T) {
-  return value;
-};
-
-export const size: Bicoder<number> = {
-  encode(stream, value) {
+export const size = new Bicoder<number>({
+  write(stream, value) {
     // TODO: Check value is encodable as a size (float strangeness)
 
     while (true) {
@@ -31,7 +27,7 @@ export const size: Bicoder<number> = {
       }
     }
   },
-  decode(stream) {
+  read(stream) {
     let value = 0;
     let placeValue = 1;
 
@@ -48,7 +44,6 @@ export const size: Bicoder<number> = {
       placeValue *= 128;
     }
   },
-
   test(value) {
     return (
       typeof value === "number" &&
@@ -57,17 +52,14 @@ export const size: Bicoder<number> = {
       Math.round(value) === value
     );
   },
+});
 
-  echo,
-};
-
-export const isize: Bicoder<number> = {
-  encode(stream, value) {
+export const isize = new Bicoder<number>({
+  write(stream, value) {
     const sz = 2 * Math.abs(value) + (value < 0 ? 1 : 0);
     stream.write(size, sz);
   },
-
-  decode(stream) {
+  read(stream) {
     const sz = stream.read(size);
     const positive = sz % 2 === 0;
     const absSize = (sz - (positive ? 0 : 1)) / 2;
@@ -75,7 +67,6 @@ export const isize: Bicoder<number> = {
 
     return sign * absSize;
   },
-
   test(value) {
     return (
       typeof value === "number" &&
@@ -83,30 +74,27 @@ export const isize: Bicoder<number> = {
       Math.round(value) === value
     );
   },
+});
 
-  echo,
-};
-
-export const buffer: Bicoder<Uint8Array> = {
-  encode(stream, value) {
-    size.encode(stream, value.byteLength);
+export const buffer = new Bicoder<Uint8Array>({
+  write(stream, value) {
+    stream.write(size, value.length);
     stream.writeBuffer(value);
   },
-  decode(stream) {
-    const sz = size.decode(stream);
+  read(stream) {
+    const sz = stream.read(size);
     return stream.readBuffer(sz);
   },
   test(value) {
     return value instanceof Uint8Array;
   },
-  echo,
-};
+});
 
-export const byte: Bicoder<number> = {
-  encode(stream, value) {
+export const byte = new Bicoder<number>({
+  write(stream, value) {
     stream.writeByte(value);
   },
-  decode(stream) {
+  read(stream) {
     return stream.readByte();
   },
   test(value) {
@@ -118,87 +106,81 @@ export const byte: Bicoder<number> = {
       value === Math.round(value)
     );
   },
-  echo,
-};
+});
 
-export const number: Bicoder<number> = {
-  encode(stream, value) {
+export const number = new Bicoder<number>({
+  write(stream, value) {
     const buf = new ArrayBuffer(8);
     new DataView(buf).setFloat64(0, value);
     stream.writeBuffer(new Uint8Array(buf));
   },
-  decode(stream) {
+  read(stream) {
     return new DataView(stream.readBuffer(8).slice().buffer).getFloat64(0);
   },
   test(value) {
     return typeof value === "number";
   },
-  echo,
-};
+});
 
-export const string: Bicoder<string> = {
-  encode(stream, value) {
-    buffer.encode(stream, new TextEncoder().encode(value));
+export const string = new Bicoder<string>({
+  write(stream, value) {
+    stream.write(buffer, new TextEncoder().encode(value));
   },
-  decode(stream) {
-    return new TextDecoder().decode(buffer.decode(stream));
+  read(stream) {
+    return new TextDecoder().decode(stream.read(buffer));
   },
   test(value) {
     return typeof value === "string";
   },
-  echo,
-};
+});
 
-export const boolean: Bicoder<boolean> = {
-  encode(stream, value) {
+export const boolean = new Bicoder<boolean>({
+  write(stream, value) {
     stream.writeByte(value ? 1 : 0);
   },
-  decode(stream) {
+  read(stream) {
     return stream.readByte() !== 1; // TODO: Be strict
   },
   test(value) {
     return typeof value === "boolean";
   },
-  echo,
-};
+});
 
-export const null_: Bicoder<null> = {
-  encode(_stream, _value) {},
-  decode(_stream) {
+export const null_ = new Bicoder<null>({
+  write(_stream, _value) {},
+  read(_stream) {
     return null;
   },
   test(value) {
     return value === null;
   },
-  echo,
-};
+});
 
-export const undefined_: Bicoder<undefined> = {
-  encode(_stream, _value) {},
-  decode(_stream) {
+export const undefined_ = new Bicoder<undefined>({
+  write(_stream, _value) {},
+  read(_stream) {
     return undefined;
   },
   test(value) {
     return value === undefined;
   },
-  echo,
-};
+});
 
 export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
-  return {
-    encode(stream, value) {
-      size.encode(stream, value.length);
+  return new Bicoder<T[]>({
+    write(stream, value) {
+      stream.write(size, value.length);
 
       for (const el of value) {
-        element.encode(stream, el);
+        stream.write(element, el);
       }
     },
-    decode(stream) {
-      const sz = size.decode(stream);
+    read(stream) {
+      const sz = stream.read(size);
       const value: T[] = [];
 
       for (let i = 0; i < sz; i++) {
-        value.push(element.decode(stream));
+        value.push(stream.read(element));
       }
 
       return value;
@@ -206,8 +188,7 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
     test(value) {
       return Array.isArray(value) && value.every((v) => element.test(v));
     },
-    echo,
-  };
+  });
 }
 
 export function object<T extends Record<string, unknown>>(
@@ -215,17 +196,17 @@ export function object<T extends Record<string, unknown>>(
     [K in keyof T]: Bicoder<T[K]>;
   },
 ): Bicoder<T> {
-  return {
-    encode(stream, value) {
+  return new Bicoder<T>({
+    write(stream, value) {
       for (const [k, v] of Object.entries(value)) {
-        elements[k].encode(stream, v as T[typeof k]);
+        stream.write(elements[k], v as T[typeof k]);
       }
     },
-    decode(stream) {
+    read(stream) {
       const value: Record<string, unknown> = {};
 
       for (const k of Object.keys(elements)) {
-        value[k] = elements[k].decode(stream);
+        value[k] = stream.read(elements[k]);
       }
 
       return value as T;
@@ -242,30 +223,29 @@ export function object<T extends Record<string, unknown>>(
         )
       );
     },
-    echo,
-  };
+  });
 }
 
 export function stringMap<T>(
   element: Bicoder<T>,
 ): Bicoder<StringMap<T>> {
-  return {
-    encode(stream, value) {
+  return new Bicoder<StringMap<T>>({
+    write(stream, value) {
       const entries = Object.entries(value).filter(([, v]) => v !== undefined);
-      size.encode(stream, entries.length);
+      stream.write(size, entries.length);
 
       for (const [k, v] of entries) {
-        string.encode(stream, k);
-        element.encode(stream, v as Exclude<typeof v, undefined>);
+        stream.write(string, k);
+        stream.write(element, v as Exclude<typeof v, undefined>);
       }
     },
-    decode(stream) {
-      const sz = size.decode(stream);
+    read(stream) {
+      const sz = stream.read(size);
       const result: StringMap<T> = {};
 
       for (let i = 0; i < sz; i++) {
-        const key = string.decode(stream);
-        const value = element.decode(stream);
+        const key = stream.read(string);
+        const value = stream.read(element);
         result[key] = value;
       }
 
@@ -278,24 +258,23 @@ export function stringMap<T>(
         Object.values(value).every((v) => v === undefined || element.test(v))
       );
     },
-    echo,
-  };
+  });
 }
 
 export function tuple<T extends AnyBicoder[]>(
   ...elements: T
 ): Bicoder<BicoderTargets<T>> {
-  return {
-    encode(stream, value) {
+  return new Bicoder<BicoderTargets<T>>({
+    write(stream, value) {
       for (let i = 0; i < elements.length; i++) {
-        elements[i].encode(stream, value[i]);
+        stream.write(elements[i], value[i]);
       }
     },
-    decode(stream) {
+    read(stream) {
       const results: unknown[] = [];
 
       for (const element of elements) {
-        results.push(element.decode(stream));
+        results.push(stream.read(element));
       }
 
       return results as BicoderTargets<T>;
@@ -307,15 +286,14 @@ export function tuple<T extends AnyBicoder[]>(
         elements.every((element, i) => element.test(value[i]))
       );
     },
-    echo,
-  };
+  });
 }
 
 export function union<T extends AnyBicoder[]>(
   ...options: T
 ): Bicoder<UnionOf<BicoderTargets<T>>> {
-  return {
-    encode(stream, value) {
+  return new Bicoder<UnionOf<BicoderTargets<T>>>({
+    write(stream, value) {
       for (let i = 0; i < options.length; i++) {
         const option = options[i];
 
@@ -327,17 +305,17 @@ export function union<T extends AnyBicoder[]>(
         // - Use generators for incremental testing, and stop incremental
         //   testing when all but one option has been eliminated
         if (option.test(value)) {
-          size.encode(stream, i);
-          option.encode(stream, value);
+          stream.write(size, i);
+          stream.write(option, value);
           return;
         }
       }
 
       throw new Error(`Could not encode ${value}`);
     },
-    decode(stream) {
-      const optionIndex = size.decode(stream);
-      return options[optionIndex].decode(stream) as UnionOf<BicoderTargets<T>>;
+    read(stream) {
+      const optionIndex = stream.read(size);
+      return stream.read(options[optionIndex]) as UnionOf<BicoderTargets<T>>;
     },
     test(value) {
       for (let i = 0; i < options.length; i++) {
@@ -348,30 +326,27 @@ export function union<T extends AnyBicoder[]>(
 
       return false;
     },
-    echo,
-  };
+  });
 }
 
 export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
-  return {
-    encode: (stream, value) => fn().encode(stream, value),
-    decode: (stream) => fn().decode(stream),
+  return new Bicoder<T>({
+    write: (stream, value) => stream.write(fn(), value),
+    read: (stream) => stream.read(fn()),
     test: (value) => fn().test(value),
-    echo,
-  };
+  });
 }
 
 export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
-  return {
-    encode(_stream, _value) {},
-    decode(_stream) {
+  return new Bicoder<T>({
+    write(_stream, _value) {},
+    read(_stream) {
       return exactValue;
     },
     test(value) {
       return value === exactValue;
     },
-    echo,
-  };
+  });
 }
 
 export function enum_<T extends Primitive[]>(
@@ -380,8 +355,8 @@ export function enum_<T extends Primitive[]>(
   return union(...args.map(exact)) as unknown as Bicoder<UnionOf<T>>;
 }
 
-export const bigint: Bicoder<bigint> = {
-  encode(stream, value) {
+export const bigint = new Bicoder<bigint>({
+  write(stream, value) {
     if (value === 0n) {
       stream.writeByte(0);
       return;
@@ -392,7 +367,7 @@ export const bigint: Bicoder<bigint> = {
 
     const hex = absValue.toString(16);
     const sz = Math.floor((hex.length + 1) / 2);
-    size.encode(stream, (positive ? 0 : 1) + 2 * sz);
+    stream.write(size, (positive ? 0 : 1) + 2 * sz);
 
     let pos = 0;
 
@@ -405,8 +380,8 @@ export const bigint: Bicoder<bigint> = {
       stream.writeByte(parseInt(hex.slice(pos, pos + 2), 16));
     }
   },
-  decode(stream) {
-    let sz = size.decode(stream);
+  read(stream) {
+    let sz = stream.read(size);
 
     if (sz === 0) {
       return 0n;
@@ -427,8 +402,7 @@ export const bigint: Bicoder<bigint> = {
   test(value) {
     return typeof value === "bigint";
   },
-  echo,
-};
+});
 
 export function optional<T>(element: Bicoder<T>): Bicoder<T | null> {
   return union(null_, element);

@@ -30,6 +30,6 @@ const drawing: Drawing = {
   },
 };
 
-const buffer = tb.encodeBuffer(Drawing, drawing);
+const buffer = Drawing.encode(drawing);
 
 console.log(buffer);

@@ -29,7 +29,7 @@ const Shape = tb.union(Circle, Triangle, Square);
 type Shape = tb.TypeOf<typeof Shape>;
 
 function show(shape: Shape) {
-  console.log(new Uint8Array(tb.encodeBuffer(Shape, shape)));
+  console.log(Shape.encode(shape));
 }
 
 // Circle
@@ -69,14 +69,13 @@ show({
   90,   // rotation:         45
 */
 
-console.log(tb.decodeBuffer(
-  Shape,
+console.log(Shape.decode(
   new Uint8Array([
     [2], //    Option 2:     Square
     [0, 0], // Position:     (0, 0)
     [100], //  sideLength:      100
     [90], //   rotation:         45
-  ].flat()).buffer,
+  ].flat()),
 )); /* {
   type: "square",
   position: { x: 0, y: 0 },

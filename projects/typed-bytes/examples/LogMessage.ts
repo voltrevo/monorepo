@@ -14,9 +14,7 @@ const LogMessage = tb.object({
 */
 type LogMessage = tb.TypeOf<typeof LogMessage>;
 
-const { encode, decode } = tb.BufferBicoder(LogMessage);
-
-const buffer = encode({
+const buffer = LogMessage.encode({
   level: "LOG",
   message: "Test message",
 });
@@ -39,4 +37,4 @@ console.log(buffer);
     message: string;
   }
 */
-const decodedValue = decode(buffer);
+const decodedValue = LogMessage.decode(buffer);

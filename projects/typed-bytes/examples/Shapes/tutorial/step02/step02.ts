@@ -5,7 +5,7 @@ const Canvas = tb.object({
   height: tb.size,
 });
 
-const buffer = tb.encodeBuffer(Canvas, {
+const buffer = Canvas.encode({
   width: 1280,
   height: 720,
 });

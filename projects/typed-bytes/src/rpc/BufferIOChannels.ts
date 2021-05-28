@@ -43,7 +43,7 @@ export default function BufferIOChannels(bufferIO: BufferIO): BufferIOChannels {
         return;
       }
 
-      const msg = tb.decodeBuffer(ChannelMessage, buffer);
+      const msg = ChannelMessage.decode(buffer);
       Queue(msg.id).push(msg.buffer);
     }
   })();
@@ -55,7 +55,7 @@ export default function BufferIOChannels(bufferIO: BufferIO): BufferIOChannels {
       return {
         write: (buffer) =>
           bufferIO.write(
-            tb.encodeBuffer(ChannelMessage, { id, buffer }),
+            ChannelMessage.encode({ id, buffer }),
           ),
         read: () => queue.pop(),
       };

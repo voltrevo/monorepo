@@ -10,7 +10,7 @@ function TypedWriter<T>(
   bicoder: tb.Bicoder<T>,
 ): TypedWriter<T> {
   return {
-    write: (value) => bufferWriter.write(tb.encodeBuffer(bicoder, value)),
+    write: (value) => bufferWriter.write(bicoder.encode(value)),
   };
 }
 

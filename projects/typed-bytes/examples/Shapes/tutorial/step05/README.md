@@ -40,7 +40,7 @@ little helper for that this time:
 
 ```ts
 function show(shape: Shape) {
-  console.log(new Uint8Array(tb.encodeBuffer(Shape, shape)));
+  console.log(Shape.encode(shape));
 }
 ```
 
@@ -90,12 +90,12 @@ if it was successfully encoded as a square, when we decode it, it would produce
 this:
 
 ```ts
-console.log(tb.decodeBuffer(Shape, new Uint8Array([
+console.log(Shape.decode(new Uint8Array([
   2,    // Option 2:     Square
   0, 0, // Position:     (0, 0)
   100,  // sideLength:      100
   90,   // rotation:         45
-]).buffer)); /* {
+]))); /* {
   position: { x: 0, y: 0 },
   sideLength: 100,
   rotation: 45,

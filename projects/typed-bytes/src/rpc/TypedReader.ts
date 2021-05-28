@@ -17,7 +17,7 @@ function TypedReader<T>(
         return null;
       }
 
-      return { message: tb.decodeBuffer(bicoder, buffer) };
+      return { message: bicoder.decode(buffer) };
     },
   };
 }
