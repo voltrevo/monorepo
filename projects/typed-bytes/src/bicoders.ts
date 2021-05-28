@@ -357,12 +357,12 @@ export function enum_<T extends Primitive[]>(
 
 export const bigint = new Bicoder<bigint>({
   write(stream, value) {
-    if (value === 0n) {
+    if (value === BigInt(0)) {
       stream.writeByte(0);
       return;
     }
 
-    const positive = value >= 0n;
+    const positive = value >= BigInt(0);
     const absValue = positive ? value : -value;
 
     const hex = absValue.toString(16);
@@ -384,7 +384,7 @@ export const bigint = new Bicoder<bigint>({
     let sz = stream.read(size);
 
     if (sz === 0) {
-      return 0n;
+      return BigInt(0);
     }
 
     const positive = sz % 2 === 0;
