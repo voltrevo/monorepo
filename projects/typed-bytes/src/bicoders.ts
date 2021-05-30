@@ -1,9 +1,9 @@
 import Bicoder from "./Bicoder.ts";
+import globals from "./globals.ts";
 import type {
   AnyBicoder,
   BicoderTargets,
   Primitive,
-  StringMap,
   UnionOf,
 } from "./types.ts";
 
@@ -166,7 +166,7 @@ export const undefined_ = new Bicoder<undefined>({
   },
 });
 
-export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
+export function Array<T>(element: Bicoder<T>): Bicoder<T[]> {
   return new Bicoder<T[]>({
     write(stream, value) {
       stream.write(size, value.length);
@@ -186,38 +186,41 @@ export function array<T>(element: Bicoder<T>): Bicoder<T[]> {
       return value;
     },
     test(value) {
-      return Array.isArray(value) && value.every((v) => element.test(v));
+      return (
+        globals.Array.isArray(value) &&
+        value.every((v) => element.test(v))
+      );
     },
   });
 }
 
-export function object<T extends Record<string, unknown>>(
+export function Object<T extends Record<string, unknown>>(
   elements: {
     [K in keyof T]: Bicoder<T[K]>;
   },
 ): Bicoder<T> {
   return new Bicoder<T>({
     write(stream, value) {
-      for (const [k, v] of Object.entries(value)) {
+      for (const [k, v] of globals.Object.entries(value)) {
         stream.write(elements[k], v as T[typeof k]);
       }
     },
     read(stream) {
       const value: Record<string, unknown> = {};
 
-      for (const k of Object.keys(elements)) {
+      for (const k of globals.Object.keys(elements)) {
         value[k] = stream.read(elements[k]);
       }
 
       return value as T;
     },
     test(value) {
-      const keys = Object.keys(elements);
+      const keys = globals.Object.keys(elements);
 
       return (
         typeof value === "object" &&
         value !== null &&
-        keys.length === Object.keys(value).length &&
+        keys.length === globals.Object.keys(value).length &&
         keys.every(
           (k) => elements[k].test((value as Record<string, unknown>)[k]),
         )
@@ -226,12 +229,16 @@ export function object<T extends Record<string, unknown>>(
   });
 }
 
-export function stringMap<T>(
+export type StringMap<T> = { [key in string]?: T };
+
+export function StringMap<T>(
   element: Bicoder<T>,
 ): Bicoder<StringMap<T>> {
   return new Bicoder<StringMap<T>>({
     write(stream, value) {
-      const entries = Object.entries(value).filter(([, v]) => v !== undefined);
+      const entries = globals.Object.entries(value)
+        .filter(([, v]) => v !== undefined);
+
       stream.write(size, entries.length);
 
       for (const [k, v] of entries) {
@@ -255,13 +262,14 @@ export function stringMap<T>(
       return (
         typeof value === "object" &&
         value !== null &&
-        Object.values(value).every((v) => v === undefined || element.test(v))
+        globals.Object.values(value)
+          .every((v) => v === undefined || element.test(v))
       );
     },
   });
 }
 
-export function tuple<T extends AnyBicoder[]>(
+export function Tuple<T extends AnyBicoder[]>(
   ...elements: T
 ): Bicoder<BicoderTargets<T>> {
   return new Bicoder<BicoderTargets<T>>({
@@ -281,7 +289,7 @@ export function tuple<T extends AnyBicoder[]>(
     },
     test(value) {
       return (
-        Array.isArray(value) &&
+        globals.Array.isArray(value) &&
         value.length === elements.length &&
         elements.every((element, i) => element.test(value[i]))
       );
@@ -289,7 +297,7 @@ export function tuple<T extends AnyBicoder[]>(
   });
 }
 
-export function union<T extends AnyBicoder[]>(
+export function Union<T extends AnyBicoder[]>(
   ...options: T
 ): Bicoder<UnionOf<BicoderTargets<T>>> {
   return new Bicoder<UnionOf<BicoderTargets<T>>>({
@@ -337,7 +345,7 @@ export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
   });
 }
 
-export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
+export function Exact<T extends Primitive>(exactValue: T): Bicoder<T> {
   return new Bicoder<T>({
     write(_stream, _value) {},
     read(_stream) {
@@ -349,10 +357,10 @@ export function exact<T extends Primitive>(exactValue: T): Bicoder<T> {
   });
 }
 
-export function enum_<T extends Primitive[]>(
+export function Enum<T extends Primitive[]>(
   ...args: T
 ): Bicoder<UnionOf<T>> {
-  return union(...args.map(exact)) as unknown as Bicoder<UnionOf<T>>;
+  return Union(...args.map(Exact)) as unknown as Bicoder<UnionOf<T>>;
 }
 
 export const bigint = new Bicoder<bigint>({
@@ -404,6 +412,6 @@ export const bigint = new Bicoder<bigint>({
   },
 });
 
-export function optional<T>(element: Bicoder<T>): Bicoder<T | null> {
-  return union(null_, element);
+export function Optional<T>(element: Bicoder<T>): Bicoder<T | null> {
+  return Union(null_, element);
 }

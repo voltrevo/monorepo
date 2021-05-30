@@ -8,7 +8,7 @@ type BufferIOChannels = {
   Channel(id: number): BufferIO;
 };
 
-const ChannelMessage = tb.object({
+const ChannelMessage = tb.Object({
   id: tb.size,
   buffer: tb.buffer,
 });

@@ -75,13 +75,13 @@ finish rendering.
 +  | Recursive
  );
 ...
-+const Recursive = tb.object({
-+  type: tb.exact("recursive"),
++const Recursive = tb.Object({
++  type: tb.Exact("recursive"),
 +  depth: tb.size,
 +  shape: ShapeReference,
 +});
  
- const Shape = tb.union(
+ const Shape = tb.Union(
    Circle,
    Triangle,
    Square,

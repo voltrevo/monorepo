@@ -5,8 +5,6 @@ type ExplicitAny = any;
 
 export type AnyBicoder = Bicoder<ExplicitAny>;
 
-export type StringMap<T> = { [key in string]?: T };
-
 type BicoderTargetsImpl<T> = (
   T extends [Bicoder<infer First>, ...infer Rest]
     ? [First, ...BicoderTargetsImpl<Rest>]

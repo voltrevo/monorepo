@@ -1,23 +1,23 @@
 import * as tb from "../../../../mod.ts";
 
-const Canvas = tb.object({
+const Canvas = tb.Object({
   width: tb.size,
   height: tb.size,
 });
 
-const Position = tb.object({
+const Position = tb.Object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
   y: tb.isize,
 });
 
-const Circle = tb.object({
+const Circle = tb.Object({
   position: Position,
   radius: tb.size,
 });
 
-const Drawing = tb.object({
+const Drawing = tb.Object({
   canvas: Canvas,
-  shapes: tb.array(Circle),
+  shapes: tb.Array(Circle),
 });
 
 type Drawing = tb.TypeOf<typeof Drawing>;

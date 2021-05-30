@@ -1,6 +1,6 @@
 import * as tb from "../../../../mod.ts";
 
-const Canvas = tb.object({
+const Canvas = tb.Object({
   width: tb.size,
   height: tb.size,
 });

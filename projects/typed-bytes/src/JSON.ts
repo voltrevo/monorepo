@@ -1,12 +1,12 @@
 import type Bicoder from "./Bicoder.ts";
-import jsonGlobal from "./jsonGlobal.ts";
+import globals from "./globals.ts";
 
 const JSON = {
   stringify: function <T>(_bicoder: Bicoder<T>, value: T): string {
-    return jsonGlobal.stringify(value);
+    return globals.JSON.stringify(value);
   },
   parse: function <T>(bicoder: Bicoder<T>, jsonString: string): T {
-    const parsed = jsonGlobal.parse(jsonString);
+    const parsed = globals.JSON.parse(jsonString);
 
     if (!bicoder.test(parsed)) {
       throw new Error("JSON does not match type");

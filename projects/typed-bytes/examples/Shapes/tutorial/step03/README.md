@@ -5,12 +5,12 @@ circles. Well a circle has a center and a radius, so we can define it like
 this:
 
 ```ts
-const Position = tb.object({
+const Position = tb.Object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
   y: tb.isize,
 });
 
-const Circle = tb.object({
+const Circle = tb.Object({
   position: Position,
   radius: tb.size,
 });
@@ -19,7 +19,7 @@ const Circle = tb.object({
 Also, we now have a `Drawing` that contains the canvas and our circle:
 
 ```ts
-const Drawing = tb.object({
+const Drawing = tb.Object({
   canvas: Canvas,
   circle: Circle,
 });

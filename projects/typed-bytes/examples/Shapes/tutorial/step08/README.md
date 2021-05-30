@@ -17,14 +17,14 @@ house? Nah. Besides, grouping things together will have other benefits.
 We like shapes, so let's put shapes in our shapes:
 
 ```ts
-const MetaShape = tb.array(Shape);
+const MetaShape = tb.Array(Shape);
 ```
 
 And add this to our `Shape` definition...
 
 ```diff
--const Shape = tb.union(Circle, Triangle, Square);
-+const Shape = tb.union(Circle, Triangle, Square, MetaShape);
+-const Shape = tb.Union(Circle, Triangle, Square);
++const Shape = tb.Union(Circle, Triangle, Square, MetaShape);
 ```
 
 ... uh oh, `MetaShape` needed to be defined after `Shape` but now `Shape` needs
@@ -40,14 +40,14 @@ const ShapeReference = tb.defer(() => Shape);
 Now we can just use `ShapeReference` as we would `Shape`:
 
 ```diff
--const MetaShape = tb.array(Shape);
-+const MetaShape = tb.array(ShapeReference);
+-const MetaShape = tb.Array(Shape);
++const MetaShape = tb.Array(ShapeReference);
 ```
 
 and then we define `Shape` last as before:
 
 ```ts
-const Shape = tb.union(Circle, Triangle, Square, MetaShape);
+const Shape = tb.Union(Circle, Triangle, Square, MetaShape);
 ```
 
 One more problem though. When you use `tb.defer`, you need to specify the type
@@ -118,10 +118,10 @@ we'll need two more special shape types:
 The first one is pretty simple:
 
 ```diff
- const Drawing = tb.object({
+ const Drawing = tb.Object({
    canvas: Canvas,
-+  registry: tb.stringMap(Shape),
-   shapes: tb.array(Shape),
++  registry: tb.StringMap(Shape),
+   shapes: tb.Array(Shape),
  });
 ```
 
@@ -138,8 +138,8 @@ type Reference = tb.TypeOf<typeof Reference>;
    | MetaShape
 +  | Reference;
  ...
--const Shape = tb.union(Circle, Triangle, Square, MetaShape);
-+const Shape = tb.union(Circle, Triangle, Square, MetaShape, Reference);
+-const Shape = tb.Union(Circle, Triangle, Square, MetaShape);
++const Shape = tb.Union(Circle, Triangle, Square, MetaShape, Reference);
 ```
 
 For transformer though, we need to interact with the circular machinery again:
@@ -170,16 +170,16 @@ For transformer though, we need to interact with the circular machinery again:
 ```
 
 ```ts
-const Ratio = tb.tuple(tb.isize, tb.size);
+const Ratio = tb.Tuple(tb.isize, tb.size);
 
-const Transformer = tb.object({
-  type: tb.exact('transformer'),
-  origin: tb.optional(Position),
-  rotate: tb.optional(tb.isize),
-  scale: tb.union(
+const Transformer = tb.Object({
+  type: tb.Exact('transformer'),
+  origin: tb.Optional(Position),
+  rotate: tb.Optional(tb.isize),
+  scale: tb.Union(
     tb.null_,
     Ratio,
-    tb.object({
+    tb.Object({
       x: Ratio,
       y: Ratio,
     }),

@@ -51,8 +51,8 @@ In particular:
 For example:
 
 ```ts
-const LogMessage = tb.object({
-  level: tb.enum_("INFO", "WARN", "ERROR"),
+const LogMessage = tb.Object({
+  level: tb.Enum("INFO", "WARN", "ERROR"),
   message: tb.string,
 });
 
@@ -331,7 +331,7 @@ Protobuf's reason for doing this is that it helps with compatibility. If you are
 supports objects:
 
 ```ts
-const LogMessages = tb.array(LogMessage);
+const LogMessages = tb.Array(LogMessage);
 ```
 
 If you want an array in protobuf, you must wrap it in an object:
@@ -402,8 +402,8 @@ const LogMessage = avro.Type.forSchema({
 
 ```ts
 // typed-bytes
-const LogMessage = tb.object({
-  level: tb.enum_("INFO", "WARN", "ERROR"),
+const LogMessage = tb.Object({
+  level: tb.Enum("INFO", "WARN", "ERROR"),
   message: tb.string,
 });
 ```

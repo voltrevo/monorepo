@@ -1,6 +1,6 @@
 import * as tb from "../index.ts";
 
-const Response = tb.object({
+const Response = tb.Object({
   id: tb.size,
   data: tb.buffer,
 });

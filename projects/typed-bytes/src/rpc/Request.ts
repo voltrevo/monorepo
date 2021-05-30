@@ -26,12 +26,12 @@ type Request<Protocol extends ProtocolBase> = tb.Bicoder<
 export function RequestBicoder<Protocol extends ProtocolBase>(
   protocol: Protocol,
 ): Request<Protocol> {
-  return tb.union(
+  return tb.Union(
     ...Object.keys(protocol.methods).map((methodName) =>
-      tb.object({
+      tb.Object({
         id: tb.size,
-        method: tb.exact(methodName),
-        args: tb.tuple(...protocol.methods[methodName].args),
+        method: tb.Exact(methodName),
+        args: tb.Tuple(...protocol.methods[methodName].args),
       })
     ),
   ) as unknown as Request<Protocol>;

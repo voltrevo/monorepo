@@ -1,24 +1,24 @@
 ## Step 5: More Shapes
 
-So, `shapes: tb.array(Circle)` looks a bit strange. We can pull out a definition
+So, `shapes: tb.Array(Circle)` looks a bit strange. We can pull out a definition
 of `Shape` like so:
 
 ```diff
 +const Shape = Circle;
--  shapes: tb.array(Circle),
-+  shapes: tb.array(Shape),
+-  shapes: tb.Array(Circle),
++  shapes: tb.Array(Shape),
 ```
 
 Now that we have a proper concept of `Shape`, let's add some others:
 
 ```ts
-const Triangle = tb.object({
+const Triangle = tb.Object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
 });
 
-const Square = tb.object({
+const Square = tb.Object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
@@ -28,11 +28,11 @@ const Square = tb.object({
 We need to change our definition of `Shape` from just `Circle` to any of
 `Circle`, `Triangle`, or `Square`.
 
-Introducing `tb.union`:
+Introducing `tb.Union`:
 
 ```diff
 -const Shape = Circle;
-+const Shape = tb.union(Circle, Triangle, Square);
++const Shape = tb.Union(Circle, Triangle, Square);
 ```
 
 Let's focus on how individual shapes are encoded for a moment. Let's add a
@@ -82,7 +82,7 @@ show({
 */
 ```
 
-We can see the `tb.union` at work here. Encoding the circle just takes one extra
+We can see the `tb.Union` at work here. Encoding the circle just takes one extra
 byte, a `0`, to signal that it is a circle and not one of the other shapes.
 
 However, our square got encoded as a triangle. That's a problem. In fact, even

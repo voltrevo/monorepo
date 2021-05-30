@@ -47,7 +47,7 @@ Deno.test("bicode strings", () =>
   ]));
 
 Deno.test("bicode string arrays", () =>
-  testBicoder(tb.array(tb.string), [
+  testBicoder(tb.Array(tb.string), [
     { value: [], bytes: [0] },
     { value: [""], bytes: [1, 0] },
     { value: ["", ""], bytes: [2, 0, 0] },
@@ -69,7 +69,7 @@ Deno.test("bicode string arrays", () =>
   ]));
 
 Deno.test("bicode array of objects", () => {
-  const bicoder = tb.array(tb.object({
+  const bicoder = tb.Array(tb.Object({
     x: tb.number,
     y: tb.number,
     message: tb.string,
@@ -111,8 +111,8 @@ Deno.test("bicode array of objects", () => {
   ]);
 });
 
-Deno.test("bicode tuple", () => {
-  testBicoder(tb.tuple(tb.number, tb.null_, tb.string), [
+Deno.test("bicode Tuple", () => {
+  testBicoder(tb.Tuple(tb.number, tb.null_, tb.string), [
     {
       value: [1, null, "hi"],
       bytes: [
@@ -124,8 +124,8 @@ Deno.test("bicode tuple", () => {
   ]);
 });
 
-Deno.test("bicode union", () => {
-  testBicoder(tb.union(tb.null_, tb.number, tb.string), [
+Deno.test("bicode Union", () => {
+  testBicoder(tb.Union(tb.null_, tb.number, tb.string), [
     { value: null, bytes: [0] },
     { value: 123, bytes: [1, 64, 94, 192, 0, 0, 0, 0, 0] },
     { value: "hi", bytes: [2, 2, 104, 105] },
@@ -143,13 +143,13 @@ Deno.test("bicode json", () => {
 
   const deferBicoder = tb.defer((): tb.Bicoder<JSON> => bicoder);
 
-  const bicoder = tb.union(
+  const bicoder = tb.Union(
     tb.null_,
     tb.boolean,
     tb.number,
     tb.string,
-    tb.array(deferBicoder),
-    tb.stringMap(deferBicoder),
+    tb.Array(deferBicoder),
+    tb.StringMap(deferBicoder),
   );
 
   testBicoder(bicoder, [
@@ -178,7 +178,7 @@ Deno.test("bicode json", () => {
         nulls: [null, null, null],
       },
       bytes: [
-        [5], // Option 5: stringMap
+        [5], // Option 5: StringMap
         [4], // 4 keys
 
         [3, 111, 110, 101], // "one"
@@ -188,7 +188,7 @@ Deno.test("bicode json", () => {
         [2, 64, 0, 0, 0, 0, 0, 0, 0], // 2
 
         [3, 111, 98, 106], // "obj"
-        [5], // Option 5: stringMap
+        [5], // Option 5: StringMap
         [1], // 1 key
         [3, 102, 111, 111], // "foo"
         [3, 3, 98, 97, 114], // "bar"
@@ -205,13 +205,13 @@ Deno.test("bicode json", () => {
 });
 
 Deno.test("bicode json comparison (known structure)", () => {
-  const bicoder = tb.object({
+  const bicoder = tb.Object({
     one: tb.number,
     two: tb.number,
-    obj: tb.object({
+    obj: tb.Object({
       foo: tb.string,
     }),
-    nulls: tb.array(tb.null_),
+    nulls: tb.Array(tb.null_),
   });
 
   testBicoder(bicoder, [
@@ -235,7 +235,7 @@ Deno.test("bicode json comparison (known structure)", () => {
 });
 
 Deno.test("bicode enums", () => {
-  const bicoder = tb.enum_("foo", null, "bar");
+  const bicoder = tb.Enum("foo", null, "bar");
 
   testBicoder(bicoder, [
     { value: "foo", bytes: [0] },
@@ -296,29 +296,29 @@ Deno.test("bicode isizes", () => {
 });
 
 Deno.test("shapes", () => {
-  const Position = tb.object({
+  const Position = tb.Object({
     x: tb.isize,
     y: tb.isize,
   });
 
-  const Circle = tb.object({
+  const Circle = tb.Object({
     position: Position,
     radius: tb.size,
   });
 
-  const Triangle = tb.object({
-    position: Position,
-    radius: tb.size,
-    rotation: tb.isize,
-  });
-
-  const Square = tb.object({
+  const Triangle = tb.Object({
     position: Position,
     radius: tb.size,
     rotation: tb.isize,
   });
 
-  const Shape = tb.union(Circle, Triangle, Square);
+  const Square = tb.Object({
+    position: Position,
+    radius: tb.size,
+    rotation: tb.isize,
+  });
+
+  const Shape = tb.Union(Circle, Triangle, Square);
   type Shape = tb.TypeOf<typeof Shape>;
 
   const buffer = Shape.encode({

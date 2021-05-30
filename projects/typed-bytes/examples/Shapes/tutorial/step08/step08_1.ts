@@ -1,6 +1,6 @@
 import * as tb from "../../../../mod.ts";
 
-const Color = tb.object({
+const Color = tb.Object({
   red: tb.byte,
   green: tb.byte,
   blue: tb.byte,
@@ -11,27 +11,27 @@ const black = { red: 0, green: 0, blue: 0, alpha: 255 };
 const red = { red: 255, green: 0, blue: 0, alpha: 255 };
 const white = { red: 255, green: 255, blue: 255, alpha: 255 };
 
-const Canvas = tb.object({
+const Canvas = tb.Object({
   width: tb.size,
   height: tb.size,
-  background: tb.optional(Color),
+  background: tb.Optional(Color),
 });
 
-const Position = tb.object({
+const Position = tb.Object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
   y: tb.isize,
 });
 
 const outlineAndFill = {
-  outline: tb.optional(tb.object({
+  outline: tb.Optional(tb.Object({
     color: Color,
     thickness: tb.size,
   })),
-  fill: tb.optional(Color),
+  fill: tb.Optional(Color),
 };
 
-const Circle = tb.object({
-  type: tb.exact("circle"),
+const Circle = tb.Object({
+  type: tb.Exact("circle"),
   position: Position,
   radius: tb.size,
   ...outlineAndFill,
@@ -39,23 +39,23 @@ const Circle = tb.object({
 
 type Circle = tb.TypeOf<typeof Circle>;
 
-const Triangle = tb.object({
-  type: tb.exact("triangle"),
+const Triangle = tb.Object({
+  type: tb.Exact("triangle"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
   ...outlineAndFill,
 });
 
-const Square = tb.object({
-  type: tb.exact("square"),
+const Square = tb.Object({
+  type: tb.Exact("square"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
   ...outlineAndFill,
 });
 
-const Shape = tb.union(Circle, Triangle, Square);
+const Shape = tb.Union(Circle, Triangle, Square);
 type Shape = tb.TypeOf<typeof Shape>;
 
 const shapes: Shape[] = [
@@ -278,9 +278,9 @@ const shapes: Shape[] = [
   },
 ];
 
-const Drawing = tb.object({
+const Drawing = tb.Object({
   canvas: Canvas,
-  shapes: tb.array(Shape),
+  shapes: tb.Array(Shape),
 });
 
 type Drawing = tb.TypeOf<typeof Drawing>;

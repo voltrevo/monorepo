@@ -5,7 +5,7 @@ an array.
 
 ```diff
 -  circle: Circle,
-+  shapes: tb.array(Circle),
++  shapes: tb.Array(Circle),
 ```
 
 This allows us to add our actual circles like this:

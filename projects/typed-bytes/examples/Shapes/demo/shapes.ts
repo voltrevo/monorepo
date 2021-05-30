@@ -1,6 +1,6 @@
 import * as tb from "../../../mod.ts";
 
-export const Color = tb.object({
+export const Color = tb.Object({
   red: tb.byte,
   green: tb.byte,
   blue: tb.byte,
@@ -9,31 +9,31 @@ export const Color = tb.object({
 
 export type Color = tb.TypeOf<typeof Color>;
 
-export const Canvas = tb.object({
+export const Canvas = tb.Object({
   width: tb.size,
   height: tb.size,
-  background: tb.optional(Color),
+  background: tb.Optional(Color),
 });
 
 export type Canvas = tb.TypeOf<typeof Canvas>;
 
-export const Position = tb.object({
+export const Position = tb.Object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
   y: tb.isize,
 });
 
 const outlineAndFill = {
-  outline: tb.optional(tb.object({
+  outline: tb.Optional(tb.Object({
     color: Color,
     thickness: tb.size,
   })),
-  fill: tb.optional(Color),
+  fill: tb.Optional(Color),
 };
 
 export type Position = tb.TypeOf<typeof Position>;
 
-export const Circle = tb.object({
-  type: tb.exact("circle"),
+export const Circle = tb.Object({
+  type: tb.Exact("circle"),
   position: Position,
   radius: tb.size,
   ...outlineAndFill,
@@ -41,8 +41,8 @@ export const Circle = tb.object({
 
 export type Circle = tb.TypeOf<typeof Circle>;
 
-export const Triangle = tb.object({
-  type: tb.exact("triangle"),
+export const Triangle = tb.Object({
+  type: tb.Exact("triangle"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
@@ -51,8 +51,8 @@ export const Triangle = tb.object({
 
 export type Triangle = tb.TypeOf<typeof Triangle>;
 
-export const RegularPolygon = tb.object({
-  type: tb.exact("regular-polygon"),
+export const RegularPolygon = tb.Object({
+  type: tb.Exact("regular-polygon"),
   sides: tb.size,
   position: Position,
   radius: tb.size,
@@ -62,8 +62,8 @@ export const RegularPolygon = tb.object({
 
 export type RegularPolygon = tb.TypeOf<typeof RegularPolygon>;
 
-export const Square = tb.object({
-  type: tb.exact("square"),
+export const Square = tb.Object({
+  type: tb.Exact("square"),
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
@@ -108,18 +108,18 @@ export type Shape = (
 
 export const ShapeReference: tb.Bicoder<Shape> = tb.defer(() => Shape);
 
-export const MetaShape = tb.array(ShapeReference);
+export const MetaShape = tb.Array(ShapeReference);
 
-export const Ratio = tb.tuple(tb.isize, tb.size);
+export const Ratio = tb.Tuple(tb.isize, tb.size);
 
-export const Transformer = tb.object({
-  type: tb.exact("transformer"),
-  origin: tb.optional(Position),
-  rotate: tb.optional(tb.isize),
-  scale: tb.union(
+export const Transformer = tb.Object({
+  type: tb.Exact("transformer"),
+  origin: tb.Optional(Position),
+  rotate: tb.Optional(tb.isize),
+  scale: tb.Union(
     tb.null_,
     Ratio,
-    tb.object({
+    tb.Object({
       x: Ratio,
       y: Ratio,
     }),
@@ -127,13 +127,13 @@ export const Transformer = tb.object({
   shape: ShapeReference,
 });
 
-const Recursive = tb.object({
-  type: tb.exact("recursive"),
+const Recursive = tb.Object({
+  type: tb.Exact("recursive"),
   depth: tb.size,
   shape: ShapeReference,
 });
 
-export const Shape = tb.union(
+export const Shape = tb.Union(
   Circle,
   Triangle,
   Square,
@@ -144,9 +144,9 @@ export const Shape = tb.union(
   Recursive,
 );
 
-export const Drawing = tb.object({
+export const Drawing = tb.Object({
   canvas: Canvas,
-  registry: tb.stringMap(Shape),
+  registry: tb.StringMap(Shape),
   shape: Shape,
 });
 

@@ -3,20 +3,20 @@
 Let's add a `type` field to each shape to fix this:
 
 ```diff
- const Circle = tb.object({
-+  type: tb.exact("circle"),
+ const Circle = tb.Object({
++  type: tb.Exact("circle"),
 
- const Triangle = tb.object({
-+  type: tb.exact("triangle"),
+ const Triangle = tb.Object({
++  type: tb.Exact("triangle"),
 
- const Square = tb.object({
-+  type: tb.exact("square"),
+ const Square = tb.Object({
++  type: tb.Exact("square"),
 ```
 
 Upon doing this, TypeScript detects that the shapes we pass to the `show`
 function are now incorrect 🤘.
 
-After fixing that, [`step06.ts`](./step06.ts) outputs almost exactly the same
+After fixing that, [`step06.ts`](./step06.ts) outputs almost Exactly the same
 thing:
 
 ```diff
@@ -33,10 +33,10 @@ Ta da 🎉. That fixed the problem. Our square is now a square.
 ![Drawing](./drawing.png)
 
 There's more though - the encoding didn't actually change. The `type` field
-takes up *zero space*. Why? Well, a `tb.exact` can only encode one thing, which
+takes up *zero space*. Why? Well, a `tb.Exact` can only encode one thing, which
 means it represents zero information.
 
-Thinking of it another way, when the decoder encounters a `tb.exact`, it already
+Thinking of it another way, when the decoder encounters a `tb.Exact`, it already
 knows what the value is, so it doesn't need to consume any bytes to figure that
 out.
 
@@ -44,12 +44,12 @@ For example:
 
 ```ts
 console.log(new Uint8Array(
-  tb.exact("hello").encode("hello")
+  tb.Exact("hello").encode("hello")
 ));
 // Uint8Array(0) []
 
 console.log(
-  tb.exact("hello").decode(new Uint8Array(0)),
+  tb.Exact("hello").decode(new Uint8Array(0)),
 );
 // hello
 ```

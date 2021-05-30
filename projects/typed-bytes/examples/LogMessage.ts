@@ -1,7 +1,7 @@
 import * as tb from "../mod.ts";
 
-const LogMessage = tb.object({
-  level: tb.enum_("LOG", "WARN", "ERROR"),
+const LogMessage = tb.Object({
+  level: tb.Enum("LOG", "WARN", "ERROR"),
   message: tb.string,
 });
 

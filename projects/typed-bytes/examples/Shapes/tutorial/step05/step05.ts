@@ -1,28 +1,28 @@
 import * as tb from "../../../../mod.ts";
 
-const Position = tb.object({
+const Position = tb.Object({
   x: tb.isize, // Note: `isize` is like `size` but it allows negative numbers
   y: tb.isize,
 });
 
-const Circle = tb.object({
+const Circle = tb.Object({
   position: Position,
   radius: tb.size,
 });
 
-const Triangle = tb.object({
+const Triangle = tb.Object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
 });
 
-const Square = tb.object({
+const Square = tb.Object({
   position: Position,
   sideLength: tb.size,
   rotation: tb.isize,
 });
 
-const Shape = tb.union(Circle, Triangle, Square);
+const Shape = tb.Union(Circle, Triangle, Square);
 type Shape = tb.TypeOf<typeof Shape>;
 
 function show(shape: Shape) {

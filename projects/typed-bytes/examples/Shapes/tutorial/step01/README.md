@@ -3,7 +3,7 @@
 Let's start with the size of the canvas:
 
 ```ts
-const Canvas = tb.object({
+const Canvas = tb.Object({
   width: tb.number,
   height: tb.number,
 });
