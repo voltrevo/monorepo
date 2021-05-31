@@ -1,3 +1,4 @@
+import assertExists from "./helpers/assertExists.ts";
 import Bicoder from "./Bicoder.ts";
 import globals from "./globals.ts";
 import type {
@@ -7,7 +8,7 @@ import type {
   UnionOf,
 } from "./types.ts";
 
-export const size = new Bicoder<number>({
+export const size: Bicoder<number> = new Bicoder({
   write(stream, value) {
     // TODO: Check value is encodable as a size (float strangeness)
 
@@ -52,6 +53,7 @@ export const size = new Bicoder<number>({
       Math.round(value) === value
     );
   },
+  Meta: () => size,
 });
 
 export const isize = new Bicoder<number>({
@@ -191,6 +193,10 @@ export function Array<T>(element: Bicoder<T>): Bicoder<T[]> {
         value.every((v) => element.test(v))
       );
     },
+    Meta: () => ({
+      fn: Array,
+      args: [element],
+    }),
   });
 }
 
@@ -415,3 +421,79 @@ export const bigint = new Bicoder<bigint>({
 export function Optional<T>(element: Bicoder<T>): Bicoder<T | null> {
   return Union(null_, element);
 }
+
+export function buildType(...extraBicoders: AnyBicoder[]): Bicoder<AnyBicoder> {
+  const stdBicoders: AnyBicoder[] = [
+    undefined_,
+    null_,
+    boolean,
+    number,
+    string,
+    bigint,
+    byte,
+    size,
+    isize,
+    Array(null_),
+    Object({}),
+    StringMap(null_),
+    Tuple(),
+    Union(null_),
+    Exact(null),
+  ];
+
+  const bicoders = [...stdBicoders, ...extraBicoders];
+
+  function Identity(bicoder: AnyBicoder) {
+    const meta = assertExists(bicoder.Meta)();
+
+    if (meta instanceof Bicoder) {
+      return meta;
+    }
+
+    return meta.fn;
+  }
+
+  const identities = bicoders.map(Identity);
+
+  function IdentityIndex(bicoder: AnyBicoder) {
+    return assertExists(identities.indexOf(Identity(bicoder)));
+  }
+
+  return new Bicoder<AnyBicoder>({
+    write(stream, value) {
+      stream.write(size, IdentityIndex(value));
+
+      const meta = assertExists(value.Meta)();
+
+      if (meta instanceof Bicoder) {
+        return;
+      }
+
+      stream.write(meta.Args, meta.args);
+    },
+    read(stream) {
+      const id = stream.read(size);
+
+      const identity = assertExists(identities[id]);
+
+      if (identity instanceof Bicoder) {
+        return identity;
+      }
+
+      const meta = assertExists(identity().Meta)();
+
+      if (meta instanceof Bicoder) {
+        throw new Error("Should not be possible");
+      }
+
+      const args = stream.read(meta.Args);
+
+      return meta.fn(...args);
+    },
+    test(value) {
+      return value instanceof Bicoder;
+    },
+  });
+}
+
+export const Type = buildType();
