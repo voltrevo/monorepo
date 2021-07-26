@@ -1,4 +1,4 @@
-import assertExists from "../../../src/helpers/assertExists.ts";
+import assertExists from "../../helpers/assertExists.ts";
 
 export default class AsyncQueue<T> {
   open = true;

@@ -7,8 +7,13 @@ import type {
   Primitive,
   UnionOf,
 } from "./types.ts";
+import Stream from "./Stream.ts";
+import BufferStream from "./BufferStream.ts";
 
-export const size: Bicoder<number> = new Bicoder({
+// deno-lint-ignore no-explicit-any
+type ExplicitAny = any;
+
+export const size = new Bicoder<number>({
   write(stream, value) {
     // TODO: Check value is encodable as a size (float strangeness)
 
@@ -53,7 +58,6 @@ export const size: Bicoder<number> = new Bicoder({
       Math.round(value) === value
     );
   },
-  Meta: () => size,
 });
 
 export const isize = new Bicoder<number>({
@@ -110,7 +114,7 @@ export const byte = new Bicoder<number>({
   },
 });
 
-export const number = new Bicoder<number>({
+export const number: Bicoder<number> = new Bicoder({
   write(stream, value) {
     const buf = new ArrayBuffer(8);
     new DataView(buf).setFloat64(0, value);
@@ -124,7 +128,7 @@ export const number = new Bicoder<number>({
   },
 });
 
-export const string = new Bicoder<string>({
+export const string: Bicoder<string> = new Bicoder<string>({
   write(stream, value) {
     stream.write(buffer, new TextEncoder().encode(value));
   },
@@ -141,7 +145,7 @@ export const boolean = new Bicoder<boolean>({
     stream.writeByte(value ? 1 : 0);
   },
   read(stream) {
-    return stream.readByte() !== 1; // TODO: Be strict
+    return stream.readByte() !== 0; // TODO: Be strict
   },
   test(value) {
     return typeof value === "boolean";
@@ -193,10 +197,10 @@ export function Array<T>(element: Bicoder<T>): Bicoder<T[]> {
         value.every((v) => element.test(v))
       );
     },
-    Meta: () => ({
+    meta: {
       fn: Array,
       args: [element],
-    }),
+    },
   });
 }
 
@@ -231,6 +235,10 @@ export function Object<T extends Record<string, unknown>>(
           (k) => elements[k].test((value as Record<string, unknown>)[k]),
         )
       );
+    },
+    meta: {
+      fn: Object,
+      args: [elements],
     },
   });
 }
@@ -272,6 +280,10 @@ export function StringMap<T>(
           .every((v) => v === undefined || element.test(v))
       );
     },
+    meta: {
+      fn: StringMap,
+      args: [element],
+    },
   });
 }
 
@@ -299,6 +311,10 @@ export function Tuple<T extends AnyBicoder[]>(
         value.length === elements.length &&
         elements.every((element, i) => element.test(value[i]))
       );
+    },
+    meta: {
+      fn: Tuple,
+      args: elements,
     },
   });
 }
@@ -340,6 +356,10 @@ export function Union<T extends AnyBicoder[]>(
 
       return false;
     },
+    meta: {
+      fn: Union as ExplicitAny,
+      args: options,
+    },
   });
 }
 
@@ -348,10 +368,14 @@ export function defer<T>(fn: () => Bicoder<T>): Bicoder<T> {
     write: (stream, value) => stream.write(fn(), value),
     read: (stream) => stream.read(fn()),
     test: (value) => fn().test(value),
+    meta: {
+      fn: defer,
+      args: [fn],
+    },
   });
 }
 
-export function Exact<T extends Primitive>(exactValue: T): Bicoder<T> {
+export function Exact<T>(exactValue: T): Bicoder<T> {
   return new Bicoder<T>({
     write(_stream, _value) {},
     read(_stream) {
@@ -359,6 +383,10 @@ export function Exact<T extends Primitive>(exactValue: T): Bicoder<T> {
     },
     test(value) {
       return value === exactValue;
+    },
+    meta: {
+      fn: Exact as ExplicitAny,
+      args: [exactValue],
     },
   });
 }
@@ -422,8 +450,28 @@ export function Optional<T>(element: Bicoder<T>): Bicoder<T | null> {
   return Union(null_, element);
 }
 
-export function buildType(...extraBicoders: AnyBicoder[]): Bicoder<AnyBicoder> {
-  const stdBicoders: AnyBicoder[] = [
+function createAny(...extraBicoders: AnyBicoder[]) {
+  const deferredAny = defer(() => Any);
+
+  const Any: Bicoder<ExplicitAny> = Union(
+    undefined_,
+    null_,
+    boolean,
+    number,
+    string,
+    bigint,
+    Array(deferredAny),
+    StringMap(deferredAny),
+    ...extraBicoders,
+  );
+
+  return Any;
+}
+
+export const Any = createAny(defer(() => Type));
+
+export function createType(...extraBicoders: AnyBicoder[]) {
+  const bicoders: AnyBicoder[] = [
     undefined_,
     null_,
     boolean,
@@ -439,61 +487,125 @@ export function buildType(...extraBicoders: AnyBicoder[]): Bicoder<AnyBicoder> {
     Tuple(),
     Union(null_),
     Exact(null),
+    ...extraBicoders, // TODO: Separate numbering for backwards compatibility
   ];
 
-  const bicoders = [...stdBicoders, ...extraBicoders];
-
   function Identity(bicoder: AnyBicoder) {
-    const meta = assertExists(bicoder.Meta)();
-
-    if (meta instanceof Bicoder) {
-      return meta;
-    }
-
-    return meta.fn;
+    return bicoder.meta?.fn ?? bicoder;
   }
 
   const identities = bicoders.map(Identity);
 
   function IdentityIndex(bicoder: AnyBicoder) {
-    return assertExists(identities.indexOf(Identity(bicoder)));
+    const idx = identities.indexOf(Identity(bicoder));
+
+    if (idx === -1) {
+      throw new Error("Can't get identity index of bicoder");
+    }
+
+    return idx;
   }
 
-  return new Bicoder<AnyBicoder>({
-    write(stream, value) {
-      stream.write(size, IdentityIndex(value));
+  const Type = new Bicoder<AnyBicoder>({
+    write(stream: Stream, value: AnyBicoder) {
+      const Any = createAny(...extraBicoders, {
+        write: writeImpl,
+        test(value) {
+          return value instanceof Bicoder;
+        },
+      } as AnyBicoder);
 
-      const meta = assertExists(value.Meta)();
+      const AnyArgs = Array(Any);
 
-      if (meta instanceof Bicoder) {
-        return;
+      const encodedTypes: Uint8Array[] = [];
+      const encodedTypeMap: Map<AnyBicoder, number> = new Map();
+      let nextEncodedTypeIndex = identities.length;
+
+      function writeImpl(innerStream: Stream, value: AnyBicoder) {
+        // If it's a defer, unwrap it.
+        while (value.meta?.fn === defer) {
+          value = value.meta?.args[0]();
+        }
+
+        if (value.meta === undefined) {
+          innerStream.write(size, IdentityIndex(value));
+          return;
+        }
+
+        const existingTypeIndex = encodedTypeMap.get(value);
+
+        if (existingTypeIndex !== undefined) {
+          innerStream.write(size, existingTypeIndex);
+          return;
+        }
+
+        const newTypeIndex = nextEncodedTypeIndex++;
+        encodedTypeMap.set(value, newTypeIndex);
+
+        innerStream.write(size, newTypeIndex);
+
+        const typeStream = new BufferStream();
+
+        typeStream.write(size, IdentityIndex(value));
+        typeStream.write(AnyArgs, value.meta.args);
+
+        encodedTypes[newTypeIndex - identities.length] = typeStream.get();
       }
 
-      stream.write(meta.Args, meta.args);
+      const rootTypeStream = new BufferStream();
+      writeImpl(rootTypeStream, value);
+
+      stream.write(Array(buffer), encodedTypes);
+      stream.writeBuffer(rootTypeStream.get());
     },
-    read(stream) {
-      const id = stream.read(size);
+    read(stream: Stream) {
+      const Any = createAny(
+        { read: readImpl } as AnyBicoder,
+        ...extraBicoders,
+      );
 
-      const identity = assertExists(identities[id]);
+      const AnyArgs = Array(Any);
 
-      if (identity instanceof Bicoder) {
-        return identity;
+      const encodedTypeMap: Map<number, AnyBicoder> = new Map();
+
+      function readImpl(innerStream: Stream) {
+        const id = innerStream.read(size);
+
+        if (id >= identities.length) {
+          return (
+            encodedTypeMap.get(id) ??
+              defer(() => assertExists(encodedTypeMap.get(id)))
+          );
+        }
+
+        const identity = assertExists(identities[id]);
+
+        if (identity instanceof Bicoder) {
+          return identity;
+        }
+
+        const args = innerStream.read(AnyArgs);
+
+        return identity(...args);
       }
 
-      const meta = assertExists(identity().Meta)();
+      const encodedTypes = stream.read(Array(buffer));
 
-      if (meta instanceof Bicoder) {
-        throw new Error("Should not be possible");
+      for (let i = 0; i < encodedTypes.length; i++) {
+        const typeStream = new BufferStream(encodedTypes[i]);
+        encodedTypeMap.set(identities.length + i, readImpl(typeStream));
       }
 
-      const args = stream.read(meta.Args);
-
-      return meta.fn(...args);
+      return readImpl(stream);
     },
     test(value) {
       return value instanceof Bicoder;
     },
   });
+
+  identities.push(Identity(Type));
+
+  return Type;
 }
 
-export const Type = buildType();
+export const Type = createType();

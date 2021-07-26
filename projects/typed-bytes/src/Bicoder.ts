@@ -5,30 +5,25 @@ import Stream from "./Stream.ts";
 type ExplicitAny = any;
 type AnyBicoder = Bicoder<ExplicitAny>;
 
-type Meta = AnyBicoder | {
+type Meta = {
   fn: (...args: ExplicitAny[]) => AnyBicoder;
   args: ExplicitAny[];
 };
-
-type Meta2 = (
-  | { type: "primitive"; bicoder: AnyBicoder }
-  | { type: "" }
-);
 
 export type BicoderInit<T> = {
   write(stream: Stream, value: T): void;
   read(stream: Stream): T;
   test(value: unknown): boolean;
-  Meta?: () => Meta;
+  meta?: Meta;
 };
 
-export default class Bicoder<T> implements BicoderInit<T> {
+export default class Bicoder<T> {
   private echo = (value: T): T => value;
-  Meta?: () => Meta;
+  meta?: Meta;
 
   constructor(private init: BicoderInit<T>) {
-    if (init.Meta !== undefined) {
-      this.Meta = init.Meta;
+    if (init.meta) {
+      this.meta = init.meta;
     }
   }
 

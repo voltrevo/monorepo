@@ -329,3 +329,103 @@ Deno.test("shapes", () => {
 
   assertEquals([...buffer], [1, 0, 0, 100, 60]);
 });
+
+Deno.test("bicode type number", () => {
+  const number2 = tb.Type.decode(tb.Type.encode(tb.number));
+
+  const encoded123 = number2.encode(123);
+  const decoded123 = number2.decode(encoded123);
+
+  assertEquals(decoded123, 123);
+});
+
+Deno.test("bicode Any", () => {
+  testBicoder(tb.Any, [
+    {
+      value: undefined,
+      bytes: [0],
+    },
+    {
+      value: null,
+      bytes: [1],
+    },
+    {
+      value: [undefined, null, false],
+      bytes: [6, 3, 0, 1, 2, 0],
+    },
+    {
+      value: tb.number,
+      bytes: [8, 0, 3],
+    },
+  ]);
+});
+
+Deno.test("bicode type Array(number)", () => {
+  const NumberArray = tb.Array(tb.number);
+  const NumberArray2 = tb.Type.decode(tb.Type.encode(NumberArray));
+
+  const encodedNumbers = NumberArray2.encode([1, 2, 3]);
+  const decodedNumbers = NumberArray2.decode(encodedNumbers);
+
+  assertEquals(decodedNumbers, [1, 2, 3]);
+});
+
+Deno.test("bicode types", () => {
+  const Fruit = tb.Enum("Apple", "Banana", "Orange");
+  const Fruit2 = tb.Type.decode(tb.Type.encode(Fruit));
+
+  const encodedBanana = Fruit.encode("Banana");
+  const decodedBanana = Fruit2.decode(encodedBanana);
+
+  assertEquals(decodedBanana, "Banana");
+});
+
+Deno.test("bicode Type", () => {
+  const Type2 = tb.Type.decode(tb.Type.encode(tb.Type));
+
+  const Fruit = tb.Enum("Apple", "Banana", "Orange");
+  const Fruit2 = Type2.decode(Type2.encode(Fruit));
+
+  const encodedBanana = Fruit.encode("Banana");
+  const decodedBanana = Fruit2.decode(encodedBanana);
+
+  assertEquals(decodedBanana, "Banana");
+});
+
+Deno.test("bicode highly meta type", () => {
+  let meta123: tb.AnyBicoder = tb.Exact(123);
+
+  for (let i = 0; i < 10; i++) {
+    meta123 = tb.Exact(meta123);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    meta123 = meta123.decode(Uint8Array.from([]));
+  }
+
+  const value = meta123.decode(Uint8Array.from([]));
+
+  assertEquals(value, 123);
+});
+
+Deno.test("bicode recursive type", () => {
+  type DeepNumberArray = number | DeepNumberArray[];
+
+  const deferredDeepNumberArray: tb.Bicoder<DeepNumberArray> = tb.defer(
+    () => DeepNumberArray,
+  );
+
+  const DeepNumberArray = tb.Union(
+    tb.number,
+    tb.Array(deferredDeepNumberArray),
+  );
+
+  const DeepNumberArray2 = tb.Type.decode(tb.Type.encode(DeepNumberArray));
+
+  const numbers: DeepNumberArray = [1, [2], [[3]]];
+
+  const encodedNumbers = DeepNumberArray2.encode(numbers);
+  const decodedNumbers = DeepNumberArray2.decode(encodedNumbers);
+
+  assertEquals(decodedNumbers, numbers);
+});
