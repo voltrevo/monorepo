@@ -26,11 +26,11 @@ console.log(
 
 **Deno users**
 
-No need for install and run the above code directly with this tweak:
+No need for install, run the above code directly with this tweak:
 
 ```diff
 -import * as tb from "typed-bytes";
-+import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/0bb6b07/projects/typed-bytes/mod.ts";
++import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/c1ff75a/projects/typed-bytes/mod.ts";
 ```
 
 ## About
