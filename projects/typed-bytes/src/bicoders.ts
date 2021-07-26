@@ -204,7 +204,7 @@ export function Array<T>(element: Bicoder<T>): Bicoder<T[]> {
   });
 }
 
-export function Object<T extends Record<string, unknown>>(
+function Object_<T extends Record<string, unknown>>(
   elements: {
     [K in keyof T]: Bicoder<T[K]>;
   },
@@ -237,11 +237,13 @@ export function Object<T extends Record<string, unknown>>(
       );
     },
     meta: {
-      fn: Object,
+      fn: Object_,
       args: [elements],
     },
   });
 }
+
+export { Object_ as Object };
 
 export type StringMap<T> = { [key in string]?: T };
 
@@ -482,7 +484,7 @@ export function createType(...extraBicoders: AnyBicoder[]) {
     size,
     isize,
     Array(null_),
-    Object({}),
+    Object_({}),
     StringMap(null_),
     Tuple(),
     Union(null_),

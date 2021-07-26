@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run
+
 import shell from "https://raw.githubusercontent.com/voltrevo/monorepo/038266d/projects/shell/mod.ts";
 
 // Make current directory the same as this script
