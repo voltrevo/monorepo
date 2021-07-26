@@ -1,6 +1,6 @@
 # Typed Bytes
 
-*A public domain binary encoding library for TypeScript.*
+_A public domain binary encoding library for TypeScript._
 
 ## Hello World
 
@@ -43,10 +43,12 @@ type awareness provides two main benefits:
 
 This alone isn't anything new, the key is how `typed-bytes` embraces TypeScript.
 In particular:
+
 - there is no need for code-gen
 - unions are supported
 - exact types are supported
-- you can extract type information from the bicoder, so you don't need to duplicate it
+- you can extract type information from the bicoder, so you don't need to
+  duplicate it
 
 For example:
 
@@ -103,6 +105,61 @@ The image above is encoded in just 71 bytes.
 [Keep reading](./examples/Shapes/README.md) for a step-by-step guide to create a
 vector graphics format to achieve this using `typed-bytes`.
 
+## RPC
+
+To use RPC you need to provide a `bufferIO` which conforms to type `tb.BufferIO`
+so that `typed-bytes` has a way to send and receive data:
+
+```ts
+type BufferIO = {
+  read(): Promise<Uint8Array | null>;
+  write(buffer: Uint8Array): Promise<void>;
+};
+```
+
+_(In future, some convenience methods will probably be added to handle the
+common TCP socket and WebSocket use cases here, but it's also important to keep
+this because it allows you to provide whatever exotic transport you desire.)_
+
+Then, define your protocol like this:
+
+```ts
+const GreeterProtocol = tb.Protocol({
+  // A method that accepts a string and returns a string
+  // (You can use more complex types too of course, as well as multiple
+  // arguments.)
+  sayHello: tb.Method(tb.string)(tb.string),
+});
+```
+
+On the server, use `tb.serveProtocol`:
+
+```ts
+tb.serveProtocol(bufferIO, greeterProtocol, {
+  sayHello: (name) => {
+    return Promise.resolve(`Hi ${name}!`);
+  },
+});
+```
+
+On the client, use `tb.Client`:
+
+```ts
+const greeterClient = tb.Client(GreeterProtocol);
+
+const reply = await greeterClient.sayHello("Alice");
+console.log(reply); // "Hi Alice!"
+```
+
+This is all fully typed (and there's still no codegen involved). That means:
+
+- When you type `greeterClient.`, your IDE will show you the list of methods
+- Calls to those methods will have their arguments checked and the return type
+  will be inferred correctly
+- When you call `serveProtocol` you'll get useful intellisense related to the
+  protocol you passed in and TypeScript will check your implementation provides
+  all the methods correctly
+
 ## Status
 
 `typed-bytes` isn't ready to offer a stable API.
@@ -114,11 +171,11 @@ the option of staying on your own fork.
 ## Plans
 
 - Support for omitting fields instead of optionals needing to be present with
-`null`/`undefined`
-- Better support for sparse objects / condense union options at the object
-level so that a whole byte isn't needed for each union option
+  `null`/`undefined`
+- Better support for sparse objects / condense union options at the object level
+  so that a whole byte isn't needed for each union option
 - Optionally including some header bytes representing a digest of the type
-information
+  information
 - Performance testing and tuning
 - Tools for aligning with existing encodings
 - Advice about versioning and compatibility when using `typed-bytes`
@@ -128,7 +185,7 @@ information
 - RPC
 - Optional code-gen for boosting performance and supporting other languages
 - Incorporate pointers to support file format enabling incremental changes to
-large data structures
+  large data structures
 
 ## Contributing
 
@@ -145,12 +202,12 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ```ts
 const msg: LogMessage = {
-  type: 'INFO',
-  message: 'Test message',
+  type: "INFO",
+  message: "Test message",
 };
 
 new TextEncoder().encode(JSON.stringify(msg)); // 40 bytes
-LogMessage.encode(msg);                        // 14 bytes
+LogMessage.encode(msg); // 14 bytes
 ```
 
 Of course, typed-bytes is relying on the type information to achieve this, and
@@ -158,7 +215,7 @@ you need that information to decode the buffer. With JSON, you can decode it in
 a different place with just `JSON.parse`.
 
 2. `JSON.parse` doesn't check the structure being decoded and doesn't provide
-type information:
+   type information:
 
 ```ts
 // on hover:
@@ -191,13 +248,14 @@ const typedValue = tb.JSON.parse(
 
 const jsonString = tb.JSON.stringify(LogMessage, {
   // These fields are type checked against `LogMessage`
-  level: 'INFO',
-  message: 'Test message',
+  level: "INFO",
+  message: "Test message",
 });
 ```
 
 (If you're not interested in type information, then I'm not sure why you're here
 😄.)
+
 </details>
 
 ### MessagePack
@@ -209,11 +267,11 @@ const jsonString = tb.JSON.stringify(LogMessage, {
 
 ```ts
 const msg: LogMessage = {
-  type: 'INFO',
-  message: 'Test message',
+  type: "INFO",
+  message: "Test message",
 };
 
-msgpack.encode(msg);    // 33 bytes
+msgpack.encode(msg); // 33 bytes
 LogMessage.encode(msg); // 14 bytes
 ```
 
@@ -222,7 +280,7 @@ you need that information to decode the buffer. With MessagePack, you can decode
 the json in a different place with only the MessagePack library.
 
 2. MessagePack doesn't check the structure being decoded and doesn't provide
-type information:
+   type information:
 
 ```ts
 // on hover:
@@ -236,6 +294,7 @@ const msgpackValue = msgpack.decode(buffer);
 // }
 const tbValue = LogMessage.decode(buffer);
 ```
+
 </details>
 
 ### Protocol Buffers
@@ -243,10 +302,12 @@ const tbValue = LogMessage.decode(buffer);
 <details>
 <summary>Code-gen, unnecessary code complexity, click for more</summary>
 
-[Protobuf mini-project containing these examples.](./comparisons/protobuf/README.md)
+[Protobuf mini-project containing these
+examples.](./comparisons/protobuf/README.md)
 
-1. Requires learning a special-purpose `.proto` language (can be a positive *if* you need to
-share a protocol with a team that doesn't want to interact with TypeScript)
+1. Requires learning a special-purpose `.proto` language (can be a positive _if_
+   you need to share a protocol with a team that doesn't want to interact with
+   TypeScript)
 
 ```proto
 // messages.proto
@@ -272,25 +333,28 @@ pbjs messages.proto -t static-module -o messages.js
 pbts messages.js -o messages.d.ts
 ```
 
-3. Protobuf requires you to use its wrappers around your objects which is more verbose:
+3. Protobuf requires you to use its wrappers around your objects which is more
+   verbose:
 
 ```ts
 // More verbose: special protobuf object instead of vanilla object
 const msg = new LogMessage({
   // More verbose: enum wrapper instead of vanilla string
-  level: LogMessage.Level['INFO'],
-  message: 'Test message',
+  level: LogMessage.Level["INFO"],
+  message: "Test message",
 });
 ```
 
-4. Assuming you want to use protobuf version 3 (as opposed to version 2 which was superseded by version 3 five years ago), protobuf forces all fields to be optional.
+4. Assuming you want to use protobuf version 3 (as opposed to version 2 which
+   was superseded by version 3 five years ago), protobuf forces all fields to be
+   optional.
 
 TypeScript cannot tell you when you have forgotten a field:
 
 ```ts
 const msg = new LogMessage({
   // Forgot `level`, but this compiles just fine
-  message: 'Test message',
+  message: "Test message",
 });
 ```
 
@@ -302,7 +366,8 @@ const emptyMessage = LogMessage.decode(
 );
 ```
 
-If you use protobuf's wrapped object (and likely other contexts when using cross-language tooling) it will give you its default value for that type:
+If you use protobuf's wrapped object (and likely other contexts when using
+cross-language tooling) it will give you its default value for that type:
 
 ```ts
 console.log(JSON.stringify(emptyMessage.message)); /*
@@ -313,7 +378,8 @@ console.log(JSON.stringify(emptyMessage.message)); /*
 // present as an empty string when accessing the field in this way.
 ```
 
-But if you want to work with plain objects, `.toJSON` will omit the fields entirely:
+But if you want to work with plain objects, `.toJSON` will omit the fields
+entirely:
 
 ```ts
 console.log(emptyMessage.toJSON()); /*
@@ -321,14 +387,24 @@ console.log(emptyMessage.toJSON()); /*
 */
 ```
 
-In the real world, fields are very often required. It is generally the expected default when programming - if you say that a structure has a field, then an instance of that structure must have that field.
+In the real world, fields are very often required. It is generally the expected
+default when programming - if you say that a structure has a field, then an
+instance of that structure must have that field.
 
-In many cases, this means you need to take special care to deal with the fact that protobuf considers your fields to be optional, even though your application considers messages that are missing those fields to be invalid, and thus should never have been encoded/decoded in the first place.
+In many cases, this means you need to take special care to deal with the fact
+that protobuf considers your fields to be optional, even though your application
+considers messages that are missing those fields to be invalid, and thus should
+never have been encoded/decoded in the first place.
 
-Protobuf's reason for doing this is that it helps with compatibility. If you are forced to check whether fields are present, then an old message which doesn't have that field will be able to be processed by your upgrade that includes that field (even if that means the upgrade throws it out because it is required nonetheless). Some may find this valuable. `typed-bytes` allows you to make this decision instead of deciding for you.
+Protobuf's reason for doing this is that it helps with compatibility. If you are
+forced to check whether fields are present, then an old message which doesn't
+have that field will be able to be processed by your upgrade that includes that
+field (even if that means the upgrade throws it out because it is required
+nonetheless). Some may find this valuable. `typed-bytes` allows you to make this
+decision instead of deciding for you.
 
 5. `typed-bytes` allows entities of all shapes and sizes, but protobuf only
-supports objects:
+   supports objects:
 
 ```ts
 const LogMessages = tb.Array(LogMessage);
@@ -341,6 +417,7 @@ message LogMessages {
   repeated LogMessage content = 1;
 }
 ```
+
 </details>
 
 ### Avro
@@ -356,22 +433,22 @@ best unofficial library appears to be [avsc](https://github.com/mtth/avsc), and
 this is being used for comparison here.
 
 1. avsc's first example from
-[their README.md](https://github.com/mtth/avsc/blob/master/README.md) is
-rejected by the TypeScript compiler.
+   [their README.md](https://github.com/mtth/avsc/blob/master/README.md) is
+   rejected by the TypeScript compiler.
 
 ```ts
-import avro from 'avsc';
+import avro from "avsc";
 
 /*
 Argument of type '{ type: "record"; fields: ({ name: string; type: { type: "enum"; symbols: string[]; }; } | { name: string; type: string; })[]; }' is not assignable to parameter of type 'Schema'.
   Type '{ type: "record"; fields: ({ name: string; type: { type: "enum"; symbols: string[]; }; } | { name: string; type: string; })[]; }' is not assignable to type 'string'. ts(2345)
 */
 const type = avro.Type.forSchema({
-  type: 'record',
+  type: "record",
   fields: [
-    {name: 'kind', type: {type: 'enum', symbols: ['CAT', 'DOG']}},
-    {name: 'name', type: 'string'}
-  ]
+    { name: "kind", type: { type: "enum", symbols: ["CAT", "DOG"] } },
+    { name: "name", type: "string" },
+  ],
 });
 ```
 
@@ -384,18 +461,18 @@ embedded enum type.
 ```ts
 // avsc
 const LogMessage = avro.Type.forSchema({
-  name: 'LogMessage',
-  type: 'record',
+  name: "LogMessage",
+  type: "record",
   fields: [
     {
-      name: 'level',
+      name: "level",
       type: {
-        type: 'enum',
-        name: 'Level',
-        symbols: ['INFO', 'WARN', 'ERROR'],
+        type: "enum",
+        name: "Level",
+        symbols: ["INFO", "WARN", "ERROR"],
       },
     },
-    { name: 'message', type: 'string' },
+    { name: "message", type: "string" },
   ],
 });
 ```
@@ -414,8 +491,8 @@ const LogMessage = tb.Object({
 // `.toBuffer` below is typed as:
 // (method) Type.toBuffer(value: any): any
 const buf = LogMessage.toBuffer({
-  level: 'INFO',
-  message: 'Test message',
+  level: "INFO",
+  message: "Test message",
 });
 ```
 
@@ -428,6 +505,7 @@ By comparison, in typed-bytes, you can write:
 ```ts
 type LogMessage = tb.TypeOf<typeof LogMessage>;
 ```
+
 </details>
 
 ### Cap'n Proto
@@ -440,7 +518,9 @@ are not using TypeScript these comparisons do not apply.
 
 1. Library describes itself as slow.
 
-> Because v8 cannot inline or otherwise optimize calls into C++ code, and because the C++ bindings are implemented in terms of the "dynamic" API, this implementation is actually very slow.
+> Because v8 cannot inline or otherwise optimize calls into C++ code, and
+> because the C++ bindings are implemented in terms of the "dynamic" API, this
+> implementation is actually very slow.
 
 [node-capnp docs](https://github.com/capnproto/node-capnp#this-implementation-is-slow)
 
@@ -465,7 +545,7 @@ npm ERR!    31 | #include <capnp/dynamic.h>
 this is a requirement.
 
 4. After installing at the system level, `npm install capnp` still does not
-work.
+   work.
 
 I'm running nodejs 16.1.0 on ubuntu 20.04, and I was able to install Cap'n Proto
 on my system to fufil the requirement above just fine with
@@ -475,6 +555,7 @@ with the same error.
 I'd like to expand on the Cap'n Proto comparison, but for now I think it is
 clear enough that Cap'n Proto is not currently suitable for use with TypeScript.
 [Contributions welcome](./CONTRIBUTING.md).
+
 </details>
 
 ### FlatBuffers
@@ -482,7 +563,8 @@ clear enough that Cap'n Proto is not currently suitable for use with TypeScript.
 <details>
 <summary>Code-gen, strange API, non-js dependencies, click for more</summary>
 
-[FlatBuffers mini-project containing these examples.](./comparisons/flatbuffers/README.md)
+[FlatBuffers mini-project containing these
+examples.](./comparisons/flatbuffers/README.md)
 
 1. Requires learning a special-purpose `.fbs` language.
 
@@ -530,7 +612,7 @@ the artifact they pushed to npm was incomplete.)
 The first line of code generated by `flatc` is:
 
 ```ts
-import { flatbuffers } from "./flatbuffers"
+import { flatbuffers } from "./flatbuffers";
 ```
 
 (In fact, for some reason, if you don't specify a namespace in your `.fbs` file,
@@ -545,7 +627,7 @@ doesn't mention this, but the fix in my case was to create `./flatbuffers.ts`
 with this content:
 
 ```ts
-export { flatbuffers } from 'flatbuffers';
+export { flatbuffers } from "flatbuffers";
 ```
 
 6. FlatBuffers' API is... strange
@@ -559,7 +641,7 @@ let builder = new flatbuffers.Builder();
 //  Error: FlatBuffers: object serialization must not be nested.
 //
 // (typed-bytes doesn't have this kind of issue)
-const testMessage = builder.createString('Test message');
+const testMessage = builder.createString("Test message");
 
 // This is clumsy and verbose. I'd also argue it doesn't even meet the
 // requirement of encoding a LogMessage as binary. Instead it's an API that
@@ -592,7 +674,7 @@ the decode part is almost as strange:
 
 ```ts
 const byteBuffer = new flatbuffers.ByteBuffer(buf);
-const decodedValue = Sample.LogMessage.getRootAsLogMessage(byteBuffer)
+const decodedValue = Sample.LogMessage.getRootAsLogMessage(byteBuffer);
 
 // Outputs internal details and not level/message:
 console.log(decodedValue);
