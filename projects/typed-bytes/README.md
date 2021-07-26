@@ -151,6 +151,8 @@ const reply = await greeterClient.sayHello("Alice");
 console.log(reply); // "Hi Alice!"
 ```
 
+[Complete example](./examples/rpc/Greeter/README.md).
+
 This is all fully typed (and there's still no codegen involved). That means:
 
 - When you type `greeterClient.`, your IDE will show you the list of methods
@@ -182,7 +184,6 @@ the option of staying on your own fork.
 - Better support for user defined types (e.g. include classes)
 - Async support
 - Adaptors for files/sockets/etc
-- RPC
 - Optional code-gen for boosting performance and supporting other languages
 - Incorporate pointers to support file format enabling incremental changes to
   large data structures
