@@ -230,7 +230,7 @@ function Object_<T extends Record<string, unknown>>(
       return (
         typeof value === "object" &&
         value !== null &&
-        keys.length === globals.Object.keys(value).length &&
+        // keys.length === globals.Object.keys(value).length &&
         keys.every(
           (k) => elements[k].test((value as Record<string, unknown>)[k]),
         )
