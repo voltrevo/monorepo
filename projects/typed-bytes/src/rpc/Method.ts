@@ -1,4 +1,4 @@
-import * as tb from "../index.ts";
+import * as tb from "../base.ts";
 
 export type MethodBase = {
   type: "method";

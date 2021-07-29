@@ -1,4 +1,4 @@
-import * as tb from "../index.ts";
+import * as tb from "../base.ts";
 
 import AsyncQueue from "./helpers/AsyncQueue.ts";
 import BufferIO from "./BufferIO.ts";

@@ -1,4 +1,4 @@
-import * as tb from "../index.ts";
+import * as tb from "../base.ts";
 import type BufferWriter from "./BufferWriter.ts";
 
 type TypedWriter<T> = {

@@ -1,4 +1,4 @@
-import * as tb from "../index.ts";
+import * as tb from "../base.ts";
 import BufferIO from "./BufferIO.ts";
 import { ProtocolBase } from "./Protocol.ts";
 import Implementation from "./Implementation.ts";

@@ -1,4 +1,4 @@
-import * as tb from "../index.ts";
+import * as tb from "../base.ts";
 import { ProtocolBase } from "./Protocol.ts";
 
 type Implementation<Protocol extends ProtocolBase> = {
