@@ -1,4 +1,4 @@
-import BufferIO from "./BufferIO.ts";
+import type BufferIO from "./BufferIO.ts";
 
 type BufferServer = {
   accept(): Promise<BufferIO>;

@@ -1,5 +1,5 @@
-import BufferReader from "./BufferReader.ts";
-import BufferWriter from "./BufferWriter.ts";
+import type BufferReader from "./BufferReader.ts";
+import type BufferWriter from "./BufferWriter.ts";
 
 type BufferIO = BufferReader & BufferWriter;
 

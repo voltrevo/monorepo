@@ -1,5 +1,5 @@
 import * as tb from "../base.ts";
-import BufferIO from "./BufferIO.ts";
+import type BufferIO from "./BufferIO.ts";
 import TypedReader from "./TypedReader.ts";
 import TypedWriter from "./TypedWriter.ts";
 

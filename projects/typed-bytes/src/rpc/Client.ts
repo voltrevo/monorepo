@@ -1,7 +1,7 @@
 import * as tb from "../base.ts";
 import Implementation from "./Implementation.ts";
 import { ProtocolBase } from "./Protocol.ts";
-import BufferIO from "./BufferIO.ts";
+import type BufferIO from "./BufferIO.ts";
 import TypedIO from "./TypedIO.ts";
 import { RequestBicoder } from "./Request.ts";
 import Response from "./Response.ts";
