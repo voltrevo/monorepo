@@ -1,4 +1,4 @@
-import BufferServer from "./BufferServer.ts";
+import type BufferServer from "./BufferServer.ts";
 import { ProtocolBase } from "./Protocol.ts";
 import Implementation from "./Implementation.ts";
 import serveProtocol from "./serveProtocol.ts";
