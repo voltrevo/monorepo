@@ -1,5 +1,5 @@
 import BufferStream from "./BufferStream.ts";
-import Stream from "./Stream.ts";
+import type Stream from "./Stream.ts";
 
 // deno-lint-ignore no-explicit-any
 type ExplicitAny = any;

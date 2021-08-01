@@ -7,7 +7,7 @@ import type {
   Primitive,
   UnionOf,
 } from "./types.ts";
-import Stream from "./Stream.ts";
+import type Stream from "./Stream.ts";
 import BufferStream from "./BufferStream.ts";
 
 // deno-lint-ignore no-explicit-any
