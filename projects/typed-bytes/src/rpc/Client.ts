@@ -1,5 +1,5 @@
 import * as tb from "../base.ts";
-import Implementation from "./Implementation.ts";
+import type Implementation from "./Implementation.ts";
 import { ProtocolBase } from "./Protocol.ts";
 import type BufferIO from "./BufferIO.ts";
 import TypedIO from "./TypedIO.ts";
