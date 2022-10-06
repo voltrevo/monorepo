@@ -30,7 +30,7 @@ No need for install, run the above code directly with this tweak:
 
 ```diff
 -import * as tb from "typed-bytes";
-+import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/c1ff75a/projects/typed-bytes/mod.ts";
++import * as tb from "https://raw.githubusercontent.com/voltrevo/monorepo/77e8f7e/projects/typed-bytes/mod.ts";
 ```
 
 ## About
