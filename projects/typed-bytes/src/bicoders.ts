@@ -5,6 +5,7 @@ import type {
   AnyBicoder,
   BicoderTargets,
   Primitive,
+  TypeOf,
   UnionOf,
 } from "./types.ts";
 import type Stream from "./Stream.ts";
@@ -204,12 +205,18 @@ export function Array<T>(element: Bicoder<T>): Bicoder<T[]> {
   });
 }
 
-function Object_<T extends Record<string, unknown>>(
-  elements: {
-    [K in keyof T]: Bicoder<T[K]>;
-  },
-): Bicoder<T> {
-  return new Bicoder<T>({
+function Object_<T extends Record<string, AnyBicoder>>(
+  elements: T,
+): Bicoder<
+  {
+    [K in keyof T]: TypeOf<T[K]>;
+  }
+> {
+  type Value = {
+    [K in keyof T]: TypeOf<T[K]>;
+  };
+
+  return new Bicoder<Value>({
     write(stream, value) {
       for (const [k, v] of globals.Object.entries(value)) {
         stream.write(elements[k], v as T[typeof k]);
@@ -222,7 +229,7 @@ function Object_<T extends Record<string, unknown>>(
         value[k] = stream.read(elements[k]);
       }
 
-      return value as T;
+      return value as Value;
     },
     test(value) {
       const keys = globals.Object.keys(elements);
