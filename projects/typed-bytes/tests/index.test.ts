@@ -429,3 +429,19 @@ Deno.test("bicode recursive type", () => {
 
   assertEquals(decodedNumbers, numbers);
 });
+
+Deno.test("can decode correctly after encoding an object with fields in a different order", () => {
+  const Obj = tb.Object({
+    a: tb.string,
+    b: tb.string,
+  });
+
+  const buf = Obj.encode({
+    b: "b",
+    a: "a",
+  });
+
+  const decoded = Obj.decode(buf);
+
+  assertEquals(decoded.a, "a");
+});
