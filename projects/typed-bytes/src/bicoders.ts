@@ -218,8 +218,8 @@ function Object_<T extends Record<string, AnyBicoder>>(
 
   return new Bicoder<Value>({
     write(stream, value) {
-      for (const [k, v] of globals.Object.entries(value)) {
-        stream.write(elements[k], v as T[typeof k]);
+      for (const k of globals.Object.keys(elements)) {
+        stream.write(elements[k], value[k] as T[typeof k]);
       }
     },
     read(stream) {
