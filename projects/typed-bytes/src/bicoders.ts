@@ -252,6 +252,49 @@ function Object_<T extends Record<string, AnyBicoder>>(
 
 export { Object_ as Object };
 
+export function ObjectLoose<T extends Record<string, AnyBicoder>>(
+  elements: T,
+): Bicoder<
+  & { [K in keyof T]: TypeOf<T[K]> }
+  & Record<string, unknown>
+> {
+  type Value =
+    & { [K in keyof T]: TypeOf<T[K]> }
+    & Record<string, unknown>;
+
+  return new Bicoder<Value>({
+    write(stream, value) {
+      for (const k of globals.Object.keys(elements)) {
+        stream.write(elements[k], value[k] as T[typeof k]);
+      }
+    },
+    read(stream) {
+      const value: Record<string, unknown> = {};
+
+      for (const k of globals.Object.keys(elements)) {
+        value[k] = stream.read(elements[k]);
+      }
+
+      return value as Value;
+    },
+    test(value) {
+      const keys = globals.Object.keys(elements);
+
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        keys.every(
+          (k) => elements[k].test((value as Record<string, unknown>)[k]),
+        )
+      );
+    },
+    meta: {
+      fn: ObjectLoose,
+      args: [elements],
+    },
+  });
+}
+
 export type StringMap<T> = { [key in string]?: T };
 
 export function StringMap<T>(
