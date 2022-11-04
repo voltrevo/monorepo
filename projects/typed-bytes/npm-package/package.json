@@ -1,6 +1,6 @@
 {
   "name": "typed-bytes",
-  "version": "0.2.3",
+  "version": "0.3.0-object-loose.0",
   "description": "A public domain binary encoding library for TypeScript.",
   "main": "build/src/index.js",
   "scripts": {
