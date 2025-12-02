@@ -11,6 +11,7 @@ function Client<Protocol extends ProtocolBase>(
   protocol: Protocol,
 ): Implementation<Protocol> {
   let nextMessageId = 0;
+  let closed = false;
 
   const Request = RequestBicoder(protocol);
   type Request = tb.TypeOf<typeof Request>;
@@ -25,6 +26,8 @@ function Client<Protocol extends ProtocolBase>(
   const pendingResults: PendingResult[] = [];
 
   function close() {
+    closed = true;
+
     for (const [idStr, result] of Object.entries(pendingResults)) {
       if (result !== undefined) {
         result.reject(new Error("Connection closed"));
@@ -64,6 +67,10 @@ function Client<Protocol extends ProtocolBase>(
       return [
         methodName,
         async (...args: unknown[]) => {
+          if (closed) {
+            throw new Error("Connection closed");
+          }
+
           const id = nextMessageId++;
 
           typedIO.write({
